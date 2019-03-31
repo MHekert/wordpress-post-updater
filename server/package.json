@@ -1,0 +1,14 @@
+{
+  "name": "wordpress-post-updater",
+  "main": "server.js",
+  "author": "Mateusz Hekert",
+  "scripts": {
+    "start": "node main.js"
+  },
+  "dependencies": {
+    "body-parser": "latest",
+    "express": "latest",
+    "morgan": "latest",
+    "wpapi": "latest"
+  }
+}
