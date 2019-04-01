@@ -1,6 +1,7 @@
 var WPAPI = require( 'wpapi' );
 const wpConfig = require('./wpConfig.json');
-
+var sharedConfig = require('./sharedConfig.json');
+console.log(sharedConfig);
 
 var wp = new WPAPI({
     endpoint: wpConfig.url,
@@ -10,8 +11,16 @@ var wp = new WPAPI({
 const getUsers = require('./getUsers.js');
 
 module.exports = (app) => {   
-    app.get('/posts', (req, res) => {
-        wp.posts().perPage(100).then((result) => {
+
+    app.all('*', (req,res,next) => {
+        res.header("Access-Control-Allow-Origin", "*");
+        res.header("Access-Control-Allow-Headers", "X-Requested-With");
+        next();
+    })
+
+    app.get('/posts/:pageNumber', (req, res) => {
+        let page = parseInt(req.params.pageNumber,10);
+        wp.posts().perPage(sharedConfig.postsPerPage).page(page).then((result) => {
             console.log(result.length);
             res.json(result);
         }).catch((err) => {

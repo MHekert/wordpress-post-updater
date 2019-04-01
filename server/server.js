@@ -13,7 +13,9 @@ app.use(bodyParser.urlencoded({
 }));
 
 
+
 require('./app/routes.js')(app);
+
 
 server.listen(port);
 console.log('The magic happens on port ' + port);
