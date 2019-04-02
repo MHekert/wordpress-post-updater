@@ -3,8 +3,9 @@ var app             = express();
 var morgan          = require('morgan');
 var bodyParser      = require('body-parser');
 var server          = require('http').createServer(app);
+var sharedConfig 	= require('./app/sharedConfig.json');
 
-var port            = process.env.PORT || 8081;
+var port            = process.env.PORT || sharedConfig.backendPort;
 
 app.use(morgan('dev'));
 app.use(bodyParser.json());

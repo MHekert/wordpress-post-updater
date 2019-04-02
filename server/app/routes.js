@@ -21,12 +21,19 @@ module.exports = (app) => {
     app.get('/posts/:pageNumber', (req, res) => {
         let page = parseInt(req.params.pageNumber,10);
         wp.posts().perPage(sharedConfig.postsPerPage).page(page).then((result) => {
-            console.log(result.length);
             res.json(result);
         }).catch((err) => {
-            // handle error
-            console.log('error');
             console.log(err);
+            res.json(err);
+        });
+    });
+
+    app.get('/categories', (req, res) => {
+        wp.categories().perPage(100).then((result) => {
+            res.json(result);
+        }).catch((err) => {
+            console.log(err);
+            res.json(err);
         });
     });
 

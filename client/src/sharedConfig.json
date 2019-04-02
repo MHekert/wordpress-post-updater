@@ -1,3 +1,5 @@
 {
-    "postsPerPage": 100
+    "postsPerPage": 100,
+    "backendPort": 8081,
+    "backendPath": "http://localhost"
 }
