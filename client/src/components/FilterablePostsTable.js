@@ -1,45 +1,22 @@
 import React, { Component } from 'react';
 import sharedConfig from '../sharedConfig.json';
+import PostsList from './PostsList';
 
 class FilterablePostsTable extends React.Component {
 
-  constructor(props) {
-    super(props);
-
-  }
-
-  componentDidMount() {
-  
-  }
-
-  
-
   render() {
-    console.log(this.props);
-    const posts = this.props.data.posts;
-    const authors = this.props.data.authors;
-    let arrPosts = [];
-    if (posts !== undefined) {
-      posts.forEach((element) => {
-        arrPosts.push(<li key={element.id}>{element.title.rendered}</li>);
-      });
-    }
-    let arrAuthors = [];
-    if (authors !== undefined) {
-      authors.forEach((element) => {
-        arrAuthors.push(<li key={element.id}>{element.name}</li>);
-      });
-    }
-
+      const data = {
+        "posts": this.props.data.posts,
+        "filterText": this.props.data.filterText,
+        "filterAuthor": this.props.data.filterAuthor,
+        // "filterAuthor": {id: 4},
+        "filterCategory": this.props.data.filterCategory,
+        "isCompletePostsList": this.props.data.isCompletePostsList,
+        "currentAuthor": this.props.data.currentAuthor,
+        "currentPost": this.props.data.currentPost
+      }
       return (
-        <>
-          <ul>
-            {arrAuthors}
-          </ul>
-          <ul>
-            {arrPosts}
-          </ul>
-        </>
+        <PostsList data={data}></PostsList>
       );
     }
   }

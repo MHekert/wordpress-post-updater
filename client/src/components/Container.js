@@ -7,14 +7,15 @@ class Container extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      filterText: '',
       posts: [],
       authors: [],
       categories: [],
-      filterAuthor: '',
-      filterCategory: '',
+      filterText: '',
+      filterAuthor: {},
+      filterCategory: {},
       isCompletePostsList: false,
-      currentAuthor: {} //for later use
+      currentAuthor: {}, //for later use
+      currentPost: {}
     };
     // this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
     // this.handleFilterAuthorChange = this.handleFilterAuthorChange.bind(this);
@@ -98,7 +99,7 @@ class Container extends React.Component {
         }
       },
       (error) => {
-          console.log(error);
+          console.error(error);
       }
     );  
   }
@@ -113,7 +114,7 @@ class Container extends React.Component {
         });
       },
       (error) => {
-          console.log(error);
+          console.error(error);
       }
     );  
   }
@@ -127,7 +128,7 @@ class Container extends React.Component {
         });
       },
       (error) => {
-          console.log(error);
+          console.error(error);
       }
     );  
   }
