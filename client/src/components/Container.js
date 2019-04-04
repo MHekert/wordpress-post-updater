@@ -10,16 +10,10 @@ class Container extends React.Component {
       posts: [],
       authors: [],
       categories: [],
-      filterText: '',
-      filterAuthor: {},
-      filterCategory: {},
       isCompletePostsList: false,
       currentAuthor: {}, //for later use
       currentPost: {}
     };
-    // this.handleFilterTextChange = this.handleFilterTextChange.bind(this);
-    // this.handleFilterAuthorChange = this.handleFilterAuthorChange.bind(this);
-    // this.handleFilterTermChange = this.handleFilterTermChange.bind(this);
     this.retrievePosts = this.retrievePosts.bind(this);
     this.retrieveAuthors = this.retrieveAuthors.bind(this);
     this.retrieveCategories = this.retrieveCategories.bind(this);
@@ -135,12 +129,12 @@ class Container extends React.Component {
   
 
   render() {
-      return (
-        <>
-          <FilterablePostsTable data={this.state}></FilterablePostsTable>
-        </>
-      );
-    }
+    return (
+      <React.Fragment>
+        <FilterablePostsTable data={this.state}></FilterablePostsTable>
+      </React.Fragment>
+    );
   }
+}
 
-  export default Container;
+export default Container;
