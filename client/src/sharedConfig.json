@@ -1,5 +1,10 @@
 {
-    "postsPerPage": 100,
-    "backendPort": 8081,
-    "backendPath": "http://localhost"
+	"postsPerPage": 100,
+	"backendPort": 8081,
+	"backendPath": "http://localhost",
+	"ignoredCategoriesIds": [ 1, 68 ],
+	"ignoredAuthorsIds": [ 3 ],
+	"ignoredPosts": {
+		"titleKeywords": [ "Archiwum" ]
+	}
 }
