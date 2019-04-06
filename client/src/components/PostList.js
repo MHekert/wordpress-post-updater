@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import Moment from 'react-moment';
 import sharedConfig from '../sharedConfig.json';
+import Post from './Post';
 
 class PostsList extends React.Component {
 	constructor(props) {
@@ -57,17 +57,7 @@ class PostsList extends React.Component {
 		let arrPosts = [];
 		if (filteredPosts !== undefined) {
 			filteredPosts.forEach((element) => {
-				arrPosts.push(
-					<tr key={element.id}>
-						<td>{element.title.rendered}</td>
-						<td>
-							<Moment format="DD-MM-YYYY">{element.date}</Moment>
-						</td>
-						<td>
-							<Moment format="DD-MM-YYYY HH:MM">{element.modified_gmt}</Moment>
-						</td>
-					</tr>
-				);
+				arrPosts.push(<Post key={element.id} post={element} />);
 			});
 		}
 

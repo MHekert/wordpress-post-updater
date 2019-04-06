@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-import PostsList from './PostsList';
+import PostList from './PostList';
 import FilterForm from './FilterForm';
 
 class FilterablePostsTable extends React.Component {
@@ -39,7 +39,7 @@ class FilterablePostsTable extends React.Component {
 					authors={authors}
 					categories={categories}
 				/>
-				<PostsList posts={posts} filterAuthorId={filterAuthorId} filterCategoryId={filterCategoryId} />
+				<PostList posts={posts} filterAuthorId={filterAuthorId} filterCategoryId={filterCategoryId} />
 			</React.Fragment>
 		);
 	}
