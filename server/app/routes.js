@@ -1,65 +1,47 @@
-var WPAPI = require( 'wpapi' );
+var WPAPI = require('wpapi');
 const wpConfig = require('./wpConfig.json');
 var sharedConfig = require('./sharedConfig.json');
 console.log(sharedConfig);
 
 var wp = new WPAPI({
-    endpoint: wpConfig.url,
-    username: wpConfig.username,
-    password: wpConfig.password
+	endpoint: wpConfig.url,
+	username: wpConfig.username,
+	password: wpConfig.password
 });
 const getUsers = require('./getUsers.js');
 
-module.exports = (app) => {   
+module.exports = (app) => {
+	app.all('*', (req, res, next) => {
+		res.header('Access-Control-Allow-Origin', '*');
+		res.header('Access-Control-Allow-Headers', 'X-Requested-With');
+		next();
+	});
 
-    app.all('*', (req,res,next) => {
-        res.header("Access-Control-Allow-Origin", "*");
-        res.header("Access-Control-Allow-Headers", "X-Requested-With");
-        next();
-    })
+	app.get('/posts/:pageNumber', async (req, res, err) => {
+		let page = parseInt(req.params.pageNumber, 10);
+		if (err) res.status(500).send('Something broke!');
+		try {
+			res.json(await wp.posts().perPage(sharedConfig.postsPerPage).page(page));
+		} catch (e) {
+			res.status(500).send('Something broke!');
+		}
+	});
 
-    app.get('/posts/:pageNumber', (req, res) => {
-        let page = parseInt(req.params.pageNumber,10);
-        wp.posts().perPage(sharedConfig.postsPerPage).page(page).then((result) => {
-            res.json(result);
-        }).catch((err) => {
-            console.log(err);
-            res.json(err);
-        });
-    });
+	app.get('/categories', async (req, res, err) => {
+		if (err) res.status(500).send('Something broke!');
+		try {
+			res.json(await wp.categories().perPage(100));
+		} catch (e) {
+			res.status(500).send('Something broke!');
+		}
+	});
 
-    app.get('/categories', (req, res) => {
-        wp.categories().perPage(100).then((result) => {
-            res.json(result);
-        }).catch((err) => {
-            console.log(err);
-            res.json(err);
-        });
-    });
-
-    // app.get('/posts/author/:authorId', (req, res) => {
-    //     console.log(req.params.authorId);
-    //     wp.posts().author(parseInt(req.params.authorId,10)).then((result) => {
-    //         console.log(result.length);
-    //         res.json(result);
-    //     }).catch((err) => {
-    //         // handle error
-    //         console.log('error');
-    //         console.log(err);
-    //     });
-    // });
-
-
-    app.get('/authors', (req, res) => {
-        getUsers(wp).then(
-            (users) => {
-                console.log(users);
-                res.json(users);
-            },
-            (error) => {
-                console.log(error);
-                res.json(error);
-            }
-        );
-    });
-}
+	app.get('/authors', async (req, res, err) => {
+		if (err) res.status(500).send('Something broke!');
+		try {
+			res.json(await wp.users().perPage(100));
+		} catch (e) {
+			res.status(500).send('Something broke!');
+		}
+	});
+};

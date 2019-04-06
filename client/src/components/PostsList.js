@@ -45,11 +45,9 @@ class PostsList extends React.Component {
 
 	render() {
 		let filteredPosts = this.props.posts;
-		const filterAuthorId = this.props.filterAuthorId;
-		const filterCategoryId = this.props.filterCategoryId;
+		const { filterAuthorId, filterCategoryId } = this.props;
 		const ignoredCategoriesIds = sharedConfig.ignoredCategoriesIds;
 		const ignoredKeywords = sharedConfig.ignoredPosts.titleKeywords;
-		console.log(filterAuthorId);
 
 		filteredPosts = this.filterByAuthor(filteredPosts, filterAuthorId);
 		filteredPosts = this.filterByCategory(filteredPosts, filterCategoryId);

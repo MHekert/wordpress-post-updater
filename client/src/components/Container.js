@@ -28,104 +28,67 @@ class Container extends React.Component {
 		this.setCategories(this.state.categories, this.retrieveCategories);
 	}
 
-	retrievePosts(postsPage) {
-		let postsPromise = new Promise((resolve, reject) => {
-			fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/posts/${postsPage}`)
-				.then((response) => response.json())
-				.then((jsonData) => {
-					resolve(jsonData);
-				})
-				.catch((error) => {
-					console.error(error);
-					reject(error);
-				});
-		});
-		return postsPromise;
+	async retrievePosts(postsPage) {
+		let response = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/posts/${postsPage}`);
+		let jsonData = await response.json();
+		return jsonData;
 	}
 
-	retrieveAuthors() {
-		let authorsPromise = new Promise((resolve, reject) => {
-			fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/authors`)
-				.then((response) => response.json())
-				.then((jsonData) => {
-					resolve(jsonData);
-				})
-				.catch((error) => {
-					console.error(error);
-					reject(error);
-				});
-		});
-		return authorsPromise;
+	async retrieveAuthors() {
+		let resposne = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/authors`);
+		let jsonData = await resposne.json();
+		return jsonData;
 	}
 
-	retrieveCategories() {
-		let categoriesPromise = new Promise((resolve, reject) => {
-			fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/categories`)
-				.then((response) => response.json())
-				.then((jsonData) => {
-					resolve(jsonData);
-				})
-				.catch((error) => {
-					console.error(error);
-					reject(error);
-				});
-		});
-		return categoriesPromise;
+	async retrieveCategories() {
+		let response = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/categories`);
+		let jsonData = await response.json();
+		return jsonData;
 	}
 
-	setPosts(actualPosts, whichPage, retrievePosts) {
-		whichPage++;
-		retrievePosts(whichPage).then(
-			(response) => {
-				if (response.code === undefined) {
-					let tmpPosts = [];
-					tmpPosts = tmpPosts.concat(actualPosts, response);
-					this.setState({
-						posts: tmpPosts
-					});
-					this.setPosts(tmpPosts, whichPage, retrievePosts);
-				} else {
-					this.setState({
-						isCompletePostsList: true
-					});
-				}
-			},
-			(error) => {
-				console.error(error);
-			}
-		);
-	}
-
-	setAuthors(actualAuthors, retrieveAuthors) {
-		retrieveAuthors().then(
-			(newAuthors) => {
+	async setPosts(actualPosts, whichPage, retrievePosts) {
+		try {
+			whichPage++;
+			let response = await retrievePosts(whichPage);
+			if (response.code === undefined) {
+				let tmpPosts = [];
+				tmpPosts = tmpPosts.concat(actualPosts, response);
 				this.setState({
-					authors: newAuthors
+					posts: tmpPosts
 				});
-			},
-			(error) => {
-				console.error(error);
+				this.setPosts(tmpPosts, whichPage, retrievePosts);
+			} else {
+				this.setState({
+					isCompletePostsList: true
+				});
 			}
-		);
+		} catch (e) {
+			console.error(e);
+		}
 	}
 
-	setCategories(actualAuthors, retrieveCategories) {
-		retrieveCategories().then(
-			(newCategories) => {
-				this.setState({
-					categories: newCategories
-				});
-			},
-			(error) => {
-				console.error(error);
-			}
-		);
+	async setAuthors(actualAuthors, retrieveAuthors) {
+		try {
+			this.setState({
+				authors: await this.retrieveAuthors()
+			});
+		} catch (e) {
+			console.error(e);
+		}
+	}
+
+	async setCategories(actualAuthors, retrieveCategories) {
+		try {
+			this.setState({
+				categories: await retrieveCategories()
+			});
+		} catch (e) {
+			console.error(e);
+		}
 	}
 
 	render() {
-		const posts = this.state.posts;
-		const authors = this.state.authors;
-		const categories = this.state.categories;
+		const { posts, authors, categories } = this.state;
 		return (
 			<React.Fragment>
 				<FilterablePostsTable posts={posts} authors={authors} categories={categories} />

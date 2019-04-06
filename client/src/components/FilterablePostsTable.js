@@ -28,12 +28,8 @@ class FilterablePostsTable extends React.Component {
 	}
 
 	render() {
-		const posts = this.props.posts;
-		const authors = this.props.authors;
-		const categories = this.props.categories;
-		const filterAuthorId = this.state.filterAuthorId;
-		const filterCategoryId = this.state.filterCategoryId;
-		console.log(filterAuthorId);
+		const { posts, authors, categories } = this.props;
+		const { filterAuthorId, filterCategoryId } = this.state;
 		return (
 			<React.Fragment>
 				<FilterForm

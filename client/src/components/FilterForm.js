@@ -10,11 +10,11 @@ class FilterForm extends React.Component {
 		this.filterOutIgnoredObjs = this.filterOutIgnoredObjs.bind(this);
 	}
 
-	filterOutIgnoredObjs(obj, ignoredIdsArr) {
-		if (obj !== undefined && ignoredIdsArr.length !== 0) {
-			return obj.filter((el) => !ignoredIdsArr.includes(el.id));
+	filterOutIgnoredObjs(objs, ignoredIdsArr) {
+		if (objs !== undefined && ignoredIdsArr.length !== 0) {
+			return objs.filter((el) => !ignoredIdsArr.includes(el.id));
 		} else {
-			return obj;
+			return objs;
 		}
 	}
 
