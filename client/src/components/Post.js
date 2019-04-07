@@ -24,6 +24,10 @@ class Post extends React.Component {
 		});
 	}
 
+	handleClick(e) {
+		this.props.setCurrentPost(e.currentTarget.id);
+	}
+
 	render() {
 		const post = this.props.post;
 		let hover;
@@ -39,10 +43,12 @@ class Post extends React.Component {
 		return (
 			<React.Fragment>
 				<tr
+					id={post.id}
 					key={post.id}
 					style={hover}
 					onMouseOver={(e) => this.onMouseOver(e)}
 					onMouseOut={(e) => this.onMouseOut(e)}
+					onClick={(e) => this.handleClick(e)}
 				>
 					<td>{post.title.rendered}</td>
 					<td>

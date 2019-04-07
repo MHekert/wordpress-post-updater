@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import sharedConfig from '../sharedConfig.json';
 import FilterablePostsTable from './FilterablePostsTable';
+import PostViewer from './PostViewer';
 
 class Container extends React.Component {
 	constructor(props) {
@@ -9,9 +10,9 @@ class Container extends React.Component {
 			posts: [],
 			authors: [],
 			categories: [],
-			isCompletePostsList: false
+			isCompletePostsList: false,
 			// currentAuthor: {}, //for later use
-			// currentPost: {}
+			currentPostId: ''
 		};
 		this.retrievePosts = this.retrievePosts.bind(this);
 		this.retrieveAuthors = this.retrieveAuthors.bind(this);
@@ -20,12 +21,19 @@ class Container extends React.Component {
 		this.setPosts = this.setPosts.bind(this);
 		this.setAuthors = this.setAuthors.bind(this);
 		this.setCategories = this.setCategories.bind(this);
+		this.setCurrentPost = this.setCurrentPost.bind(this);
 	}
 
 	componentDidMount() {
-		this.setPosts(this.state.posts, 0, this.retrievePosts);
+		this.setPosts(this.state.posts, 1, this.retrievePosts);
 		this.setAuthors(this.state.authors, this.retrieveAuthors);
 		this.setCategories(this.state.categories, this.retrieveCategories);
+	}
+
+	setCurrentPost(postId) {
+		this.setState({
+			currentPostId: postId
+		});
 	}
 
 	async retrievePosts(postsPage) {
@@ -48,15 +56,14 @@ class Container extends React.Component {
 
 	async setPosts(actualPosts, whichPage, retrievePosts) {
 		try {
-			whichPage++;
 			let response = await retrievePosts(whichPage);
-			if (response.code === undefined) {
+			if (whichPage < response.totalPages) {
 				let tmpPosts = [];
-				tmpPosts = tmpPosts.concat(actualPosts, response);
+				tmpPosts = tmpPosts.concat(actualPosts, response.posts);
 				this.setState({
 					posts: tmpPosts
 				});
-				this.setPosts(tmpPosts, whichPage, retrievePosts);
+				this.setPosts(tmpPosts, ++whichPage, retrievePosts);
 			} else {
 				this.setState({
 					isCompletePostsList: true
@@ -89,9 +96,16 @@ class Container extends React.Component {
 
 	render() {
 		const { posts, authors, categories } = this.state;
+		const currentPostObj = posts.find((el) => el.id == this.state.currentPostId);
 		return (
 			<React.Fragment>
-				<FilterablePostsTable posts={posts} authors={authors} categories={categories} />
+				<PostViewer post={currentPostObj} />
+				<FilterablePostsTable
+					setCurrentPost={this.setCurrentPost}
+					posts={posts}
+					authors={authors}
+					categories={categories}
+				/>
 			</React.Fragment>
 		);
 	}

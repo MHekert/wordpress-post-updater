@@ -39,7 +39,12 @@ class FilterablePostsTable extends React.Component {
 					authors={authors}
 					categories={categories}
 				/>
-				<PostList posts={posts} filterAuthorId={filterAuthorId} filterCategoryId={filterCategoryId} />
+				<PostList
+					setCurrentPost={this.props.setCurrentPost}
+					posts={posts}
+					filterAuthorId={filterAuthorId}
+					filterCategoryId={filterCategoryId}
+				/>
 			</React.Fragment>
 		);
 	}

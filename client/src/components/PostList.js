@@ -57,7 +57,7 @@ class PostsList extends React.Component {
 		let arrPosts = [];
 		if (filteredPosts !== undefined) {
 			filteredPosts.forEach((element) => {
-				arrPosts.push(<Post key={element.id} post={element} />);
+				arrPosts.push(<Post setCurrentPost={this.props.setCurrentPost} key={element.id} post={element} />);
 			});
 		}
 
