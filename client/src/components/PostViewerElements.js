@@ -12,12 +12,24 @@ class PostViewerElements extends React.Component {
 		return elementArr.map((el, index) => {
 			if (el.tagName === 'p') {
 				const decomposedNode = this.decomposeElement(el);
+				const { value, bold, underline } = this.decomposeElement(el);
 				if (decomposedNode.value !== '\xa0')
-					return <ElementP key={index} node={el} decomposedNode={decomposedNode} />;
+					return (
+						<ElementP
+							setElementHTML={this.props.setElementHTML}
+							key={index}
+							elementId={index}
+							node={el}
+							value={value}
+							bold={bold}
+							underline={underline}
+							// decomposedNode={decomposedNode}
+						/>
+					);
 			}
 			if (el.tagName === 'tr') {
 				const decomposedNode = this.decomposeElement(el);
-				return <ElementTR key={index} node={el} decomposedNode={decomposedNode} />;
+				return <ElementTR key={index} elementId={index} node={el} decomposedNode={decomposedNode} />;
 			}
 		});
 	}

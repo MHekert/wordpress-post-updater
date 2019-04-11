@@ -5,7 +5,10 @@ import PostViewerElements from './PostViewerElements';
 class PostViewer extends React.Component {
 	constructor(props) {
 		super(props);
+		this.elementHTML = [];
 		this.getNodes = this.getNodes.bind(this);
+		this.setElementHTML = this.setElementHTML.bind(this);
+		this.submitPost = this.submitPost.bind(this);
 	}
 
 	getNodes(tag, node) {
@@ -28,15 +31,39 @@ class PostViewer extends React.Component {
 		}
 	}
 
+	setElementHTML(index, tagName, value, isBold, isUnderlined) {
+		const ifBold = { start: `${isBold ? `<strong>` : ``}`, end: `${isBold ? `</strong>` : ``}` };
+		const ifUnderlined = { start: `${isUnderlined ? `<u>` : ``}`, end: `${isUnderlined ? `</u>` : ``}` };
+		let output = `<${tagName}>${ifBold.start}${ifUnderlined.start}${value}${ifUnderlined.end}${ifBold.end}</${tagName}>`;
+		this.elementHTML[index] = output;
+	}
+
+	clearElementHTML() {
+		this.elementHTML = [];
+	}
+
+	submitPost(e) {
+		e.preventDefault();
+		console.log(this.elementHTML);
+	}
+
 	render() {
 		const tags = [ 'p', 'tr' ];
 		const postId = this.props.post ? this.props.post.id : '';
 		const postContent = this.props.post ? this.props.post.content.rendered : '';
 		const postViewerElements = tags.map((tag) => this.getNodes(tag, parse5.parseFragment(postContent)));
+		this.clearElementHTML();
 		return (
 			<React.Fragment>
 				<h2>{postId}</h2>
-				<PostViewerElements getNodes={this.getNodes} elements={postViewerElements} />
+				<form>
+					<PostViewerElements
+						getNodes={this.getNodes}
+						elements={postViewerElements}
+						setElementHTML={this.setElementHTML}
+					/>
+					<button onClick={this.submitPost}>Submit</button>
+				</form>
 				<p>{JSON.stringify(postContent)}</p>
 			</React.Fragment>
 		);
