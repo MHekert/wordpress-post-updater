@@ -10,6 +10,7 @@ class ElementP extends React.Component {
 			isUnderlined: this.props.underline,
 			isDirty: false
 		};
+		this.tag = 'p';
 		this.onInputChange = this.onInputChange.bind(this);
 		this.boldToggle = this.boldToggle.bind(this);
 		this.underlineToggle = this.underlineToggle.bind(this);
@@ -28,42 +29,27 @@ class ElementP extends React.Component {
 	}
 
 	onInputChange(e) {
+		const value = e.currentTarget.value;
 		this.setState({
 			value: e.currentTarget.value
 		});
-		// this.props.setElementHTML(
-		// 	this.props.elementId,
-		// 	'p',
-		// 	this.state.value,
-		// 	this.state.isBold,
-		// 	this.state.isUnderlined
-		// );
+		this.setElementHTML(this.props.index, this.tag, value, this.state.isBold, this.state.isUnderlined);
 	}
 
 	boldToggle(e) {
+		const isBold = !this.state.isBold;
 		this.setState({
 			isBold: !this.state.isBold
 		});
-		// this.props.setElementHTML(
-		// 	this.props.elementId,
-		// 	'p',
-		// 	this.state.value,
-		// 	this.state.isBold,
-		// 	this.state.isUnderlined
-		// );
+		this.setElementHTML(this.props.index, this.tag, this.state.value, isBold, this.state.isUnderlined);
 	}
 
 	underlineToggle(e) {
+		const isUnderlined = !this.state.isUnderlined;
 		this.setState({
-			isUnderlined: !this.state.isUnderlined
+			isUnderlined: isUnderlined
 		});
-		// this.props.setElementHTML(
-		// 	this.props.elementId,
-		// 	'p',
-		// 	this.state.value,
-		// 	this.state.isBold,
-		// 	this.state.isUnderlined
-		// );
+		this.setElementHTML(this.props.index, this.tag, this.state.value, this.state.isBold, isUnderlined);
 	}
 
 	setElementHTML(index, tagName, value, isBold, isUnderlined) {
@@ -72,13 +58,7 @@ class ElementP extends React.Component {
 
 	render() {
 		const { elementId } = this.props;
-		this.props.setElementHTML(
-			this.props.elementId,
-			'p',
-			this.state.value,
-			this.state.isBold,
-			this.state.isUnderlined
-		);
+
 		return (
 			<React.Fragment>
 				<label htmlFor={`p${elementId}`}>Paragraph</label>
