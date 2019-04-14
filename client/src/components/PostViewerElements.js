@@ -10,33 +10,37 @@ class PostViewerElements extends React.Component {
 
 	getJsxArrByTag(elementArr) {
 		return elementArr.map((el, index) => {
-			if (el.tagName === 'p') {
-				const decomposedNode = this.decomposeElement(el);
-				const { value, bold, underline } = this.decomposeElement(el);
-				if (decomposedNode.value !== '\xa0')
-					return (
-						<ElementP
-							setElementHTML={this.props.setElementHTML}
-							key={index}
-							elementId={index}
-							node={el}
-							value={value}
-							bold={bold}
-							underline={underline}
-							// decomposedNode={decomposedNode}
-						/>
-					);
-			}
-			if (el.tagName === 'tr') {
-				const decomposedNode = this.decomposeElement(el);
-				return <ElementTR key={index} elementId={index} node={el} decomposedNode={decomposedNode} />;
-			}
+			const decomposedNode = this.decomposeElement(el);
+			const { value, bold, underline } = this.decomposeElement(el);
+			if (decomposedNode.value !== '\xa0' && decomposedNode.value !== '')
+				return (
+					<ElementP
+						setElementHTML={this.props.setElementHTML}
+						key={index}
+						elementId={index}
+						node={el}
+						value={value}
+						bold={bold}
+						underline={underline}
+						// decomposedNode={decomposedNode}
+					/>
+				);
+			// }
+			// if (el.tagName === 'tr') {
+			// 	const decomposedNode = this.decomposeElement(el);
+			// 	return <ElementTR key={index} elementId={index} node={el} decomposedNode={decomposedNode} />;
+			// }
 		});
 	}
 
 	decomposeElement(node) {
 		let obj = {};
-		obj['value'] = this.props.getNodes('#text', node).map((el) => el.value).join();
+		obj['value'] = this.props
+			.getNodes('#text', node)
+			.filter((el) => el.parentNode.tagName !== 'a')
+			.map((el) => el.value)
+			.filter((el) => el !== '\n')
+			.join('');
 		obj['bold'] = this.props.getNodes('strong', node).length > 0 || this.props.getNodes('b', node).length > 0;
 		obj['underline'] = this.props
 			.getNodes('span', node)
@@ -49,9 +53,10 @@ class PostViewerElements extends React.Component {
 
 	render() {
 		const elements = this.props.elements;
-		const elementsJsx = elements.map((el) => {
-			return this.getJsxArrByTag(el);
-		});
+		// const elementsJsx = elements.map((el) => {
+		// 	return this.getJsxArrByTag(el);
+		// });
+		const elementsJsx = this.getJsxArrByTag(elements);
 
 		return elementsJsx;
 	}

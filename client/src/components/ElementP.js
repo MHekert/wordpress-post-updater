@@ -10,7 +10,7 @@ class ElementP extends React.Component {
 			isUnderlined: this.props.underline,
 			isDirty: false
 		};
-		this.tag = 'p';
+		this.tag = this.props.node.tagName;
 		this.onInputChange = this.onInputChange.bind(this);
 		this.boldToggle = this.boldToggle.bind(this);
 		this.underlineToggle = this.underlineToggle.bind(this);
@@ -33,7 +33,7 @@ class ElementP extends React.Component {
 		this.setState({
 			value: e.currentTarget.value
 		});
-		this.setElementHTML(this.props.index, this.tag, value, this.state.isBold, this.state.isUnderlined);
+		this.setElementHTML(this.props.elementId, this.tag, value, this.state.isBold, this.state.isUnderlined);
 	}
 
 	boldToggle(e) {
@@ -41,7 +41,7 @@ class ElementP extends React.Component {
 		this.setState({
 			isBold: !this.state.isBold
 		});
-		this.setElementHTML(this.props.index, this.tag, this.state.value, isBold, this.state.isUnderlined);
+		this.setElementHTML(this.props.elementId, this.tag, this.state.value, isBold, this.state.isUnderlined);
 	}
 
 	underlineToggle(e) {
@@ -49,7 +49,7 @@ class ElementP extends React.Component {
 		this.setState({
 			isUnderlined: isUnderlined
 		});
-		this.setElementHTML(this.props.index, this.tag, this.state.value, this.state.isBold, isUnderlined);
+		this.setElementHTML(this.props.elementId, this.tag, this.state.value, this.state.isBold, isUnderlined);
 	}
 
 	setElementHTML(index, tagName, value, isBold, isUnderlined) {
