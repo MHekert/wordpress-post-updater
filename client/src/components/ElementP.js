@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import parse5 from 'parse5';
+import TdFileInput from './TdFileInput';
 
 class ElementP extends React.Component {
 	constructor(props) {
@@ -58,10 +59,16 @@ class ElementP extends React.Component {
 
 	render() {
 		const { elementId } = this.props;
-
+		const name = this.tagName === 'p' ? 'Paragraph:' : 'Row:';
+		let tdFileInput;
+		if (this.tag === 'td') {
+			tdFileInput = <TdFileInput index={elementId} />;
+		} else {
+			tdFileInput = <React.Fragment />;
+		}
 		return (
 			<React.Fragment>
-				<label htmlFor={`p${elementId}`}>Paragraph</label>
+				<label htmlFor={`p${elementId}`}>{name}</label>
 				<textarea type="text" id={`p${elementId}`} value={this.state.value} onChange={this.onInputChange} />
 				<label htmlFor={`bold${elementId}`}>Bold</label>
 				<input type="checkbox" id={`bold${elementId}`} checked={this.state.isBold} onChange={this.boldToggle} />
@@ -72,6 +79,9 @@ class ElementP extends React.Component {
 					checked={this.state.isUnderlined}
 					onChange={this.underlineToggle}
 				/>
+				<br />
+				{tdFileInput}
+				<br />
 			</React.Fragment>
 		);
 	}

@@ -7,6 +7,8 @@ class PostViewer extends React.Component {
 		super(props);
 		this.tags = [ 'p', 'td' ];
 		this.elementHTML = [];
+		this.tdLinks = [];
+		this.tdLinksBackup = [];
 		this.mainNode = {};
 		this.iterator = [];
 		this.getNodes = this.getNodes.bind(this);
@@ -81,13 +83,13 @@ class PostViewer extends React.Component {
 		}
 	}
 
-	setIterator() {
-		this.iterator = this.elementHTML.map((el) => 0);
+	setIterator(arr) {
+		this.iterator = arr.map((el) => 0);
 	}
 
 	getAlteredNode() {
-		this.setIterator();
 		const elementHTML = this.elementHTML;
+		this.setIterator(elementHTML);
 		let tagIterator = {};
 		this.tags.forEach((el) => (tagIterator[el] = 0));
 		elementHTML.forEach((el, index) => {
@@ -104,6 +106,8 @@ class PostViewer extends React.Component {
 		});
 		return this.mainNode;
 	}
+
+	setLinkPlaceholder(index) {}
 
 	setElementHTML(index, tagName, value, isBold, isUnderlined) {
 		const ifBold = { start: `${isBold ? `<strong>` : ``}`, end: `${isBold ? `</strong>` : ``}` };
@@ -127,13 +131,19 @@ class PostViewer extends React.Component {
 		const postContent = this.props.post ? this.props.post.content.rendered : '';
 		this.mainNode = parse5.parseFragment(postContent);
 
+		const tdlinks = this.getNodes('td', this.mainNode).filter((el) =>
+			el.childNodes.some((el2) => el2.tagName === 'a')
+		);
+		this.tdLinks = tdlinks.slice();
+		this.tdLinksBackup = tdlinks.slice();
+
 		let postViewerElements = this.tags.map((tag) => this.getNodes(tag, this.mainNode));
+
 		this.elementHTML = [];
 		postViewerElements.forEach((el) => {
 			el.forEach((el2) => {
 				if (!el2.childNodes.some((el3) => el3.tagName === 'a')) {
 					this.elementHTML.push(`<${el2.tagName}>${parse5.serialize(el2)}</${el2.tagName}>`);
-					this.iterator.push(0);
 				}
 			});
 		});
@@ -143,7 +153,7 @@ class PostViewer extends React.Component {
 				return previousValue.concat(currentValue);
 			})
 			.filter((el) => !el.childNodes.some((el2) => el2.tagName === 'a'));
-		this.setIterator();
+		this.setIterator(this.elementHTML);
 		return (
 			<React.Fragment>
 				<h2>{postId}</h2>

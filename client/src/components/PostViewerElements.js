@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import ElementP from './ElementP.js';
-import ElementTR from './ElementTR';
 
 class PostViewerElements extends React.Component {
 	constructor(props) {
@@ -12,7 +11,7 @@ class PostViewerElements extends React.Component {
 		return elementArr.map((el, index) => {
 			const decomposedNode = this.decomposeElement(el);
 			const { value, bold, underline } = this.decomposeElement(el);
-			if (decomposedNode.value !== '\xa0' && decomposedNode.value !== '')
+			if (decomposedNode.value !== '\xa0' && decomposedNode.value !== '') {
 				return (
 					<ElementP
 						setElementHTML={this.props.setElementHTML}
@@ -22,14 +21,9 @@ class PostViewerElements extends React.Component {
 						value={value}
 						bold={bold}
 						underline={underline}
-						// decomposedNode={decomposedNode}
 					/>
 				);
-			// }
-			// if (el.tagName === 'tr') {
-			// 	const decomposedNode = this.decomposeElement(el);
-			// 	return <ElementTR key={index} elementId={index} node={el} decomposedNode={decomposedNode} />;
-			// }
+			}
 		});
 	}
 
@@ -53,9 +47,6 @@ class PostViewerElements extends React.Component {
 
 	render() {
 		const elements = this.props.elements;
-		// const elementsJsx = elements.map((el) => {
-		// 	return this.getJsxArrByTag(el);
-		// });
 		const elementsJsx = this.getJsxArrByTag(elements);
 
 		return elementsJsx;

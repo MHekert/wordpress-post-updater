@@ -25,7 +25,8 @@ class Post extends React.Component {
 	}
 
 	handleClick(e) {
-		this.props.setCurrentPost(e.currentTarget.id);
+		// this.props.setCurrentPost(e.currentTarget.id);
+		this.props.setCurrentPost(this.props.post);
 	}
 
 	render() {
