@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import parse5 from 'parse5';
 import TdFileInput from './TdFileInput';
 
 class ElementP extends React.Component {
@@ -58,24 +57,41 @@ class ElementP extends React.Component {
 	}
 
 	render() {
-		const { elementId } = this.props;
+		const { elementId, indexByTag } = this.props;
 		const name = this.tagName === 'p' ? 'Paragraph:' : 'Row:';
 		let tdFileInput;
 		if (this.tag === 'td') {
-			tdFileInput = <TdFileInput index={elementId} />;
+			tdFileInput = (
+				<TdFileInput
+					index={elementId}
+					setLinkPlaceholder={this.props.setLinkPlaceholder}
+					indexByTag={indexByTag}
+					tag={this.tag}
+				/>
+			);
 		} else {
 			tdFileInput = <React.Fragment />;
 		}
 		return (
 			<React.Fragment>
-				<label htmlFor={`p${elementId}`}>{name}</label>
-				<textarea type="text" id={`p${elementId}`} value={this.state.value} onChange={this.onInputChange} />
-				<label htmlFor={`bold${elementId}`}>Bold</label>
-				<input type="checkbox" id={`bold${elementId}`} checked={this.state.isBold} onChange={this.boldToggle} />
-				<label htmlFor={`underline${elementId}`}>Underline</label>
+				<label htmlFor={`${this.tag}-${indexByTag}`}>{name}</label>
+				<textarea
+					type="text"
+					id={`${this.tag}-${indexByTag}`}
+					value={this.state.value}
+					onChange={this.onInputChange}
+				/>
+				<label htmlFor={`${this.tag}-${indexByTag}-bold`}>Bold</label>
 				<input
 					type="checkbox"
-					id={`underline${elementId}`}
+					id={`${this.tag}-${indexByTag}-bold`}
+					checked={this.state.isBold}
+					onChange={this.boldToggle}
+				/>
+				<label htmlFor={`${this.tag}-${indexByTag}-underline`}>Underline</label>
+				<input
+					type="checkbox"
+					id={`${this.tag}-${indexByTag}-underline`}
 					checked={this.state.isUnderlined}
 					onChange={this.underlineToggle}
 				/>

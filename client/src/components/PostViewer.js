@@ -8,7 +8,6 @@ class PostViewer extends React.Component {
 		this.tags = [ 'p', 'td' ];
 		this.elementHTML = [];
 		this.tdLinks = [];
-		this.tdLinksBackup = [];
 		this.mainNode = {};
 		this.iterator = [];
 		this.getNodes = this.getNodes.bind(this);
@@ -17,6 +16,7 @@ class PostViewer extends React.Component {
 		this.getPartiallyAlteredNode = this.getPartiallyAlteredNode.bind(this);
 		this.getAlteredNode = this.getAlteredNode.bind(this);
 		this.setIterator = this.setIterator.bind(this);
+		this.setLinkPlaceholder = this.setLinkPlaceholder.bind(this);
 	}
 
 	getNodes(tag, node) {
@@ -40,7 +40,8 @@ class PostViewer extends React.Component {
 	}
 
 	getHTML() {
-		return parse5.serialize(this.getAlteredNode());
+		let node = this.getAlteredNode();
+		return this.getNodeHtmlWithLinkPlaceholders('td', node);
 	}
 
 	getPartiallyAlteredNode(tag, elNode, which, mainNode, index) {
@@ -107,7 +108,20 @@ class PostViewer extends React.Component {
 		return this.mainNode;
 	}
 
-	setLinkPlaceholder(index) {}
+	setLinkPlaceholder(tag, index, reset) {
+		reset ? this.tdLinks.splice(index, 1, null) : this.tdLinks.splice(index, 1, `link${index}`);
+	}
+
+	getNodeHtmlWithLinkPlaceholders(tag, node) {
+		let actualNode = parse5.serialize(node);
+		let linksArr = this.getNodes(tag, node)
+			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
+			.map((v) => parse5.serialize(v));
+		linksArr.forEach((el, index) => {
+			if (this.tdLinks[index] !== null) actualNode = actualNode.replace(el, this.tdLinks[index]);
+		});
+		return actualNode;
+	}
 
 	setElementHTML(index, tagName, value, isBold, isUnderlined) {
 		const ifBold = { start: `${isBold ? `<strong>` : ``}`, end: `${isBold ? `</strong>` : ``}` };
@@ -131,12 +145,10 @@ class PostViewer extends React.Component {
 		const postContent = this.props.post ? this.props.post.content.rendered : '';
 		this.mainNode = parse5.parseFragment(postContent);
 
-		const tdlinks = this.getNodes('td', this.mainNode).filter((el) =>
-			el.childNodes.some((el2) => el2.tagName === 'a')
-		);
+		const tdlinks = this.getNodes('td', this.mainNode)
+			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
+			.map((r) => null);
 		this.tdLinks = tdlinks.slice();
-		this.tdLinksBackup = tdlinks.slice();
-
 		let postViewerElements = this.tags.map((tag) => this.getNodes(tag, this.mainNode));
 
 		this.elementHTML = [];
@@ -154,6 +166,7 @@ class PostViewer extends React.Component {
 			})
 			.filter((el) => !el.childNodes.some((el2) => el2.tagName === 'a'));
 		this.setIterator(this.elementHTML);
+
 		return (
 			<React.Fragment>
 				<h2>{postId}</h2>
@@ -162,6 +175,7 @@ class PostViewer extends React.Component {
 						getNodes={this.getNodes}
 						elements={postViewerElements}
 						setElementHTML={this.setElementHTML}
+						setLinkPlaceholder={this.setLinkPlaceholder}
 					/>
 					<button onClick={this.submitPost}>Submit</button>
 				</form>

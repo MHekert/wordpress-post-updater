@@ -8,6 +8,12 @@ class PostViewerElements extends React.Component {
 	}
 
 	getJsxArrByTag(elementArr) {
+		let tags = [ ...new Set(elementArr.map((item) => item.tagName)) ];
+		let countByTag = {};
+		tags.forEach((tag) => {
+			countByTag[tag] = 0;
+		});
+
 		return elementArr.map((el, index) => {
 			const decomposedNode = this.decomposeElement(el);
 			const { value, bold, underline } = this.decomposeElement(el);
@@ -21,6 +27,8 @@ class PostViewerElements extends React.Component {
 						value={value}
 						bold={bold}
 						underline={underline}
+						setLinkPlaceholder={this.props.setLinkPlaceholder}
+						indexByTag={countByTag[el.tagName]++}
 					/>
 				);
 			}
@@ -36,12 +44,15 @@ class PostViewerElements extends React.Component {
 			.filter((el) => el !== '\n')
 			.join('');
 		obj['bold'] = this.props.getNodes('strong', node).length > 0 || this.props.getNodes('b', node).length > 0;
-		obj['underline'] = this.props
-			.getNodes('span', node)
-			.some(
-				(span) =>
-					span.attrs !== undefined && span.attrs.some((attr) => attr.value === 'text-decoration: underline;')
-			);
+		obj['underline'] =
+			this.props.getNodes('u', node).length > 0 ||
+			this.props
+				.getNodes('span', node)
+				.some(
+					(span) =>
+						span.attrs !== undefined &&
+						span.attrs.some((attr) => attr.value === 'text-decoration: underline;')
+				);
 		return obj;
 	}
 
