@@ -58,13 +58,14 @@ class ElementP extends React.Component {
 
 	render() {
 		const { elementId, indexByTag } = this.props;
-		const name = this.tagName === 'p' ? 'Paragraph:' : 'Row:';
+		const name = this.tag === 'p' ? 'Paragraph:' : 'Row:';
 		let tdFileInput;
 		if (this.tag === 'td') {
 			tdFileInput = (
 				<TdFileInput
 					index={elementId}
 					setLinkPlaceholder={this.props.setLinkPlaceholder}
+					setFiles={this.props.setFiles}
 					indexByTag={indexByTag}
 					tag={this.tag}
 				/>

@@ -9,6 +9,7 @@
     "body-parser": "latest",
     "express": "latest",
     "morgan": "latest",
+    "multer": "^1.4.1",
     "wpapi": "latest"
   }
 }

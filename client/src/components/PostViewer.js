@@ -1,12 +1,17 @@
 import React, { Component } from 'react';
 import parse5 from 'parse5';
+import axios from 'axios';
 import PostViewerElements from './PostViewerElements';
+import PostTitle from './PostTitle';
+import sharedConfig from '../sharedConfig.json';
 
 class PostViewer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.tags = [ 'p', 'td' ];
 		this.elementHTML = [];
+		this.title = '';
+		this.files = [];
 		this.tdLinks = [];
 		this.mainNode = {};
 		this.iterator = [];
@@ -17,6 +22,8 @@ class PostViewer extends React.Component {
 		this.getAlteredNode = this.getAlteredNode.bind(this);
 		this.setIterator = this.setIterator.bind(this);
 		this.setLinkPlaceholder = this.setLinkPlaceholder.bind(this);
+		this.setFiles = this.setFiles.bind(this);
+		this.setTitle = this.setTitle.bind(this);
 	}
 
 	getNodes(tag, node) {
@@ -112,6 +119,10 @@ class PostViewer extends React.Component {
 		reset ? this.tdLinks.splice(index, 1, null) : this.tdLinks.splice(index, 1, `link${index}`);
 	}
 
+	setFiles(file, index, reset) {
+		reset ? this.files.splice(index, 1, null) : this.files.splice(index, 1, file);
+	}
+
 	getNodeHtmlWithLinkPlaceholders(tag, node) {
 		let actualNode = parse5.serialize(node);
 		let linksArr = this.getNodes(tag, node)
@@ -137,10 +148,33 @@ class PostViewer extends React.Component {
 
 	submitPost(e) {
 		e.preventDefault();
-		console.log(this.getHTML());
+		
+		let formData = new FormData();
+		formData.append('title', this.title);
+		formData.append('content', this.getHTML());
+		this.files.filter(el1 => el1 !== null).forEach(el => formData.append('file', el));
+
+		axios({
+			method: 'post',
+			url: `${sharedConfig.backendPath}:${sharedConfig.backendPort}/update/post`,
+			data: formData,
+			config: { headers: {'Content-Type': 'multipart/form-data' }}
+		
+		}).then(function (response) {
+			console.log(response);
+		  })
+		  .catch(function (error) {
+			console.log(error);
+		  });
+	
+	}
+
+	setTitle(val) {
+		this.title = val;
 	}
 
 	render() {
+		const title = this.props.post ? this.props.post.title.rendered : '';
 		const postId = this.props.post ? this.props.post.id : '';
 		const postContent = this.props.post ? this.props.post.content.rendered : '';
 		this.mainNode = parse5.parseFragment(postContent);
@@ -149,6 +183,7 @@ class PostViewer extends React.Component {
 			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
 			.map((r) => null);
 		this.tdLinks = tdlinks.slice();
+		this.files = tdlinks.slice();
 		let postViewerElements = this.tags.map((tag) => this.getNodes(tag, this.mainNode));
 
 		this.elementHTML = [];
@@ -169,13 +204,14 @@ class PostViewer extends React.Component {
 
 		return (
 			<React.Fragment>
-				<h2>{postId}</h2>
+				<PostTitle title={title} setTitle={this.setTitle}></PostTitle>
 				<form>
 					<PostViewerElements
 						getNodes={this.getNodes}
 						elements={postViewerElements}
 						setElementHTML={this.setElementHTML}
 						setLinkPlaceholder={this.setLinkPlaceholder}
+						setFiles={this.setFiles}
 					/>
 					<button onClick={this.submitPost}>Submit</button>
 				</form>

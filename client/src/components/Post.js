@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Moment from 'react-moment';
-import sharedConfig from '../sharedConfig.json';
 
 class Post extends React.Component {
 	constructor(props) {
