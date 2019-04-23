@@ -66,6 +66,7 @@ class ElementP extends React.Component {
 					index={elementId}
 					setLinkPlaceholder={this.props.setLinkPlaceholder}
 					setFiles={this.props.setFiles}
+					setFileNames={this.props.setFileNames}
 					indexByTag={indexByTag}
 					tag={this.tag}
 				/>

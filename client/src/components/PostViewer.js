@@ -12,6 +12,7 @@ class PostViewer extends React.Component {
 		this.elementHTML = [];
 		this.title = '';
 		this.files = [];
+		this.fileNames = [];
 		this.tdLinks = [];
 		this.mainNode = {};
 		this.iterator = [];
@@ -24,6 +25,7 @@ class PostViewer extends React.Component {
 		this.setLinkPlaceholder = this.setLinkPlaceholder.bind(this);
 		this.setFiles = this.setFiles.bind(this);
 		this.setTitle = this.setTitle.bind(this);
+		this.setFileNames = this.setFileNames.bind(this);
 	}
 
 	getNodes(tag, node) {
@@ -123,6 +125,10 @@ class PostViewer extends React.Component {
 		reset ? this.files.splice(index, 1, null) : this.files.splice(index, 1, file);
 	}
 
+	setFileNames(value, index, reset) {
+		reset ? this.fileNames.splice(index, 1, null) : this.fileNames.splice(index, 1, value);
+	}
+
 	getNodeHtmlWithLinkPlaceholders(tag, node) {
 		let actualNode = parse5.serialize(node);
 		let linksArr = this.getNodes(tag, node)
@@ -152,7 +158,7 @@ class PostViewer extends React.Component {
 		let formData = new FormData();
 		formData.append('title', this.title);
 		formData.append('content', this.getHTML());
-		this.files.filter(el1 => el1 !== null).forEach(el => formData.append('file', el));
+		this.files.filter(el1 => el1 !== null).forEach( (el,index) => formData.append('file', el, this.fileNames[index]));
 
 		axios({
 			method: 'post',
@@ -184,6 +190,7 @@ class PostViewer extends React.Component {
 			.map((r) => null);
 		this.tdLinks = tdlinks.slice();
 		this.files = tdlinks.slice();
+		this.fileNames = tdlinks.slice();
 		let postViewerElements = this.tags.map((tag) => this.getNodes(tag, this.mainNode));
 
 		this.elementHTML = [];
@@ -212,6 +219,7 @@ class PostViewer extends React.Component {
 						setElementHTML={this.setElementHTML}
 						setLinkPlaceholder={this.setLinkPlaceholder}
 						setFiles={this.setFiles}
+						setFileNames={this.setFileNames}
 					/>
 					<button onClick={this.submitPost}>Submit</button>
 				</form>

@@ -29,6 +29,7 @@ class PostViewerElements extends React.Component {
 						underline={underline}
 						setLinkPlaceholder={this.props.setLinkPlaceholder}
 						setFiles={this.props.setFiles}
+						setFileNames={this.props.setFileNames}
 						indexByTag={countByTag[el.tagName]++}
 					/>
 				);
