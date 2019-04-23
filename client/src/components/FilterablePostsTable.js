@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import sharedConfig from '../sharedConfig.json';
 import PostList from './PostList';
 import FilterForm from './FilterForm';
+import Spinner from './Spinner.js';
 
 class FilterablePostsTable extends React.Component {
 	constructor(props) {
@@ -34,12 +35,14 @@ class FilterablePostsTable extends React.Component {
 	async setPosts(actualPosts, whichPage, retrievePosts) {
 		try {
 			let response = await retrievePosts(whichPage);
-			if (whichPage < response.totalPages) {
-				let tmpPosts = [];
+			let tmpPosts = [];
+			if (whichPage <= response.totalPages) {
 				tmpPosts = tmpPosts.concat(actualPosts, response.posts);
 				this.setState({
 					posts: tmpPosts
 				});
+			}
+			if (whichPage < response.totalPages) {
 				this.setPosts(tmpPosts, ++whichPage, retrievePosts);
 			} else {
 				this.setState({
@@ -76,12 +79,16 @@ class FilterablePostsTable extends React.Component {
 					authors={authors}
 					categories={categories}
 				/>
-				<PostList
-					setCurrentPost={this.props.setCurrentPost}
-					posts={posts}
-					filterAuthorId={filterAuthorId}
-					filterCategoryId={filterCategoryId}
-				/>
+				{posts.length !== 0 ? (
+					<PostList
+						setCurrentPost={this.props.setCurrentPost}
+						posts={posts}
+						filterAuthorId={filterAuthorId}
+						filterCategoryId={filterCategoryId}
+					/>
+				) : (
+					<Spinner> </Spinner>
+				)}
 			</React.Fragment>
 		);
 	}

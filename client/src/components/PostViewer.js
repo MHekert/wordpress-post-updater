@@ -97,6 +97,16 @@ class PostViewer extends React.Component {
 		this.iterator = arr.map((el) => 0);
 	}
 
+	setInitial(postContent) {
+		this.mainNode = parse5.parseFragment(postContent);
+		const tdlinks = this.getNodes('td', this.mainNode)
+			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
+			.map((r) => null);
+		this.tdLinks = tdlinks.slice();
+		this.files = tdlinks.slice();
+		this.fileNames = tdlinks.slice();
+	}
+
 	getAlteredNode() {
 		const elementHTML = this.elementHTML;
 		this.setIterator(elementHTML);
@@ -154,45 +164,34 @@ class PostViewer extends React.Component {
 
 	submitPost(e) {
 		e.preventDefault();
-		
+
 		let formData = new FormData();
 		formData.append('title', this.title);
 		formData.append('content', this.getHTML());
-		this.files.filter(el1 => el1 !== null).forEach( (el,index) => formData.append('file', el, this.fileNames[index]));
+		this.files
+			.filter((el1) => el1 !== null)
+			.forEach((el, index) => formData.append('file', el, this.fileNames[index]));
 
 		axios({
 			method: 'post',
 			url: `${sharedConfig.backendPath}:${sharedConfig.backendPort}/update/post`,
 			data: formData,
-			config: { headers: {'Content-Type': 'multipart/form-data' }}
-		
-		}).then(function (response) {
-			console.log(response);
-		  })
-		  .catch(function (error) {
-			console.log(error);
-		  });
-	
+			config: { headers: { 'Content-Type': 'multipart/form-data' } }
+		})
+			.then(function(response) {
+				console.log(response);
+			})
+			.catch(function(error) {
+				console.log(error);
+			});
 	}
 
 	setTitle(val) {
 		this.title = val;
 	}
 
-	render() {
-		const title = this.props.post ? this.props.post.title.rendered : '';
-		const postId = this.props.post ? this.props.post.id : '';
-		const postContent = this.props.post ? this.props.post.content.rendered : '';
-		this.mainNode = parse5.parseFragment(postContent);
-
-		const tdlinks = this.getNodes('td', this.mainNode)
-			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
-			.map((r) => null);
-		this.tdLinks = tdlinks.slice();
-		this.files = tdlinks.slice();
-		this.fileNames = tdlinks.slice();
+	getPostViewerElement() {
 		let postViewerElements = this.tags.map((tag) => this.getNodes(tag, this.mainNode));
-
 		this.elementHTML = [];
 		postViewerElements.forEach((el) => {
 			el.forEach((el2) => {
@@ -201,17 +200,25 @@ class PostViewer extends React.Component {
 				}
 			});
 		});
-
 		postViewerElements = postViewerElements
 			.reduce((previousValue, currentValue, index, array) => {
 				return previousValue.concat(currentValue);
 			})
 			.filter((el) => !el.childNodes.some((el2) => el2.tagName === 'a'));
+
+		return postViewerElements;
+	}
+
+	render() {
+		const title = this.props.post ? this.props.post.title.rendered : '';
+		const postContent = this.props.post ? this.props.post.content.rendered : '';
+		this.setInitial(postContent);
 		this.setIterator(this.elementHTML);
+		const postViewerElements = this.getPostViewerElement();
 
 		return (
 			<React.Fragment>
-				<PostTitle title={title} setTitle={this.setTitle}></PostTitle>
+				{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 				<form>
 					<PostViewerElements
 						getNodes={this.getNodes}
@@ -221,9 +228,8 @@ class PostViewer extends React.Component {
 						setFiles={this.setFiles}
 						setFileNames={this.setFileNames}
 					/>
-					<button onClick={this.submitPost}>Submit</button>
+					{this.props.post !== '' ? <button onClick={this.submitPost}>Submit</button> : null}
 				</form>
-				<p>{JSON.stringify(postContent)}</p>
 			</React.Fragment>
 		);
 	}

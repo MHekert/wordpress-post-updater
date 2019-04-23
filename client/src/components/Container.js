@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import sharedConfig from '../sharedConfig.json';
 import FilterablePostsTable from './FilterablePostsTable';
 import PostViewer from './PostViewer';
+import Spinner from './Spinner';
 
 class Container extends React.Component {
 	constructor(props) {
@@ -67,7 +68,15 @@ class Container extends React.Component {
 		return (
 			<React.Fragment>
 				<PostViewer post={currentPostObj} />
-				<FilterablePostsTable setCurrentPost={this.setCurrentPost} authors={authors} categories={categories} />
+				{authors.length !== 0 && categories.length !== 0 ? (
+					<FilterablePostsTable
+						setCurrentPost={this.setCurrentPost}
+						authors={authors}
+						categories={categories}
+					/>
+				) : (
+					<Spinner />
+				)}
 			</React.Fragment>
 		);
 	}

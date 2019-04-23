@@ -16,11 +16,11 @@ class TdFileInput extends React.Component {
 		this.props.setFiles(file, index, reset);
 		this.props.setLinkPlaceholder(tag, index, reset);
 
-		if(!reset) {
+		if (!reset) {
 			this.props.setFileNames(null, index, true);
-			this.setState({isVisible: true});
+			this.setState({ isVisible: true });
 		} else {
-			this.setState({isVisible: false});
+			this.setState({ isVisible: false });
 		}
 	}
 
@@ -33,13 +33,13 @@ class TdFileInput extends React.Component {
 	render() {
 		const { indexByTag, tag } = this.props;
 		const id = `${tag}-${indexByTag}-file`;
-		const isVisible={display: this.state.isVisible ? 'block' : 'none' }
+		const isVisible = this.state.isVisible;
 
 		return (
 			<React.Fragment>
 				<input type="file" id={id} onChange={(e) => this.onFileChange(tag, indexByTag, e)} />
-				<br/>
-				<input type="text" style={isVisible} onChange={(e => this.onTextChange(tag, indexByTag, e))}></input>
+				<br />
+				{isVisible ? <input type="text" onChange={(e) => this.onTextChange(tag, indexByTag, e)} /> : null}
 			</React.Fragment>
 		);
 	}
