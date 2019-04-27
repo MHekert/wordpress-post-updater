@@ -10,7 +10,7 @@ class Container extends React.Component {
 		this.state = {
 			authors: [],
 			categories: [],
-			currentPost: ''
+			currentPost: undefined
 		};
 		this.setCurrentPost = this.setCurrentPost.bind(this);
 		this.setAuthors = this.setAuthors.bind(this);
@@ -67,7 +67,7 @@ class Container extends React.Component {
 		const currentPostObj = this.state.currentPost;
 		return (
 			<React.Fragment>
-				<PostViewer post={currentPostObj} />
+				{currentPostObj !== undefined ? <PostViewer post={currentPostObj} /> : null}
 				{authors.length !== 0 && categories.length !== 0 ? (
 					<FilterablePostsTable
 						setCurrentPost={this.setCurrentPost}

@@ -4,99 +4,67 @@ import TdFileInput from './TdFileInput';
 class ElementP extends React.Component {
 	constructor(props) {
 		super(props);
-		this.state = {
-			value: this.props.value,
-			isBold: this.props.bold,
-			isUnderlined: this.props.underline,
-			isDirty: false
-		};
-		this.tag = this.props.node.tagName;
-		this.onInputChange = this.onInputChange.bind(this);
-		this.boldToggle = this.boldToggle.bind(this);
-		this.underlineToggle = this.underlineToggle.bind(this);
+		this.tag = this.props.element.tagName;
 	}
 
-	componentWillReceiveProps(nextProps) {
-		if (nextProps.value !== this.state.value) {
-			this.setState({ value: nextProps.value });
-		}
-		if (nextProps.bold !== this.state.isBold) {
-			this.setState({ isBold: nextProps.bold });
-		}
-		if (nextProps.underline !== this.state.isUnderlined) {
-			this.setState({ isUnderlined: nextProps.underline });
-		}
+	deleteElement(tag, index, e) {
+		this.props.deleteElement(tag, index);
 	}
 
-	onInputChange(e) {
-		const value = e.currentTarget.value;
-		this.setState({
-			value: e.currentTarget.value
-		});
-		this.setElementHTML(this.props.elementId, this.tag, value, this.state.isBold, this.state.isUnderlined);
+	onInputChange(tag, index, e) {
+		this.props.textChange(tag, index, e.currentTarget.value);
 	}
 
-	boldToggle(e) {
-		const isBold = !this.state.isBold;
-		this.setState({
-			isBold: !this.state.isBold
-		});
-		this.setElementHTML(this.props.elementId, this.tag, this.state.value, isBold, this.state.isUnderlined);
+	boldToggle(tag, index, e) {
+		this.props.boldToggle(tag, index, !this.props.element.bold);
 	}
 
-	underlineToggle(e) {
-		const isUnderlined = !this.state.isUnderlined;
-		this.setState({
-			isUnderlined: isUnderlined
-		});
-		this.setElementHTML(this.props.elementId, this.tag, this.state.value, this.state.isBold, isUnderlined);
-	}
-
-	setElementHTML(index, tagName, value, isBold, isUnderlined) {
-		this.props.setElementHTML(index, tagName, value, isBold, isUnderlined);
+	underlineToggle(tag, index, e) {
+		this.props.underlineToggle(tag, index, !this.props.element.underline);
 	}
 
 	render() {
-		const { elementId, indexByTag } = this.props;
-		const name = this.tag === 'p' ? 'Paragraph:' : 'Row:';
+		const { elementId } = this.props;
+		const name = this.props.name;
+		const allowFiles = this.props.allowFiles;
 		let tdFileInput;
-		if (this.tag === 'td') {
+		if (allowFiles) {
 			tdFileInput = (
 				<TdFileInput
-					index={elementId}
-					setLinkPlaceholder={this.props.setLinkPlaceholder}
-					setFiles={this.props.setFiles}
-					setFileNames={this.props.setFileNames}
-					indexByTag={indexByTag}
+					index={this.props.elementId}
+					element={this.props.element}
+					setFileName={this.props.setFileName}
+					setFile={this.props.setFile}
 					tag={this.tag}
 				/>
 			);
 		} else {
-			tdFileInput = <React.Fragment />;
+			tdFileInput = null;
 		}
 		return (
 			<React.Fragment>
-				<label htmlFor={`${this.tag}-${indexByTag}`}>{name}</label>
+				<label htmlFor={`${this.tag}-${elementId}`}>{name}</label>
 				<textarea
 					type="text"
-					id={`${this.tag}-${indexByTag}`}
-					value={this.state.value}
-					onChange={this.onInputChange}
+					id={`${this.tag}-${elementId}`}
+					value={this.props.element.value}
+					onChange={(e) => this.onInputChange(this.tag, elementId, e)}
 				/>
-				<label htmlFor={`${this.tag}-${indexByTag}-bold`}>Bold</label>
+				<label htmlFor={`${this.tag}-${elementId}-bold`}>Bold</label>
 				<input
 					type="checkbox"
-					id={`${this.tag}-${indexByTag}-bold`}
-					checked={this.state.isBold}
-					onChange={this.boldToggle}
+					id={`${this.tag}-${elementId}-bold`}
+					checked={this.props.element.bold}
+					onChange={(e) => this.boldToggle(this.tag, elementId, e)}
 				/>
-				<label htmlFor={`${this.tag}-${indexByTag}-underline`}>Underline</label>
+				<label htmlFor={`${this.tag}-${elementId}-underline`}>Underline</label>
 				<input
 					type="checkbox"
-					id={`${this.tag}-${indexByTag}-underline`}
-					checked={this.state.isUnderlined}
-					onChange={this.underlineToggle}
+					id={`${this.tag}-${elementId}-underline`}
+					checked={this.props.element.underline}
+					onChange={(e) => this.underlineToggle(this.tag, elementId, e)}
 				/>
+				<button onClick={(e) => this.deleteElement(this.tag, elementId, e)}>del</button>
 				<br />
 				{tdFileInput}
 				<br />

@@ -1,31 +1,202 @@
 import React, { Component } from 'react';
 import parse5 from 'parse5';
 import axios from 'axios';
-import PostViewerElements from './PostViewerElements';
 import PostTitle from './PostTitle';
+import ElementP from './ElementP.js';
 import sharedConfig from '../sharedConfig.json';
 
 class PostViewer extends React.Component {
 	constructor(props) {
 		super(props);
-		this.tags = [ 'p', 'td' ];
-		this.elementHTML = [];
-		this.title = '';
-		this.files = [];
-		this.fileNames = [];
-		this.tdLinks = [];
-		this.mainNode = {};
-		this.iterator = [];
+		this.tags = [ 'p', 'tr' ];
+		this.state = {
+			title: '',
+			elementsP: [],
+			elementsTr: []
+		};
 		this.getNodes = this.getNodes.bind(this);
-		this.setElementHTML = this.setElementHTML.bind(this);
-		this.submitPost = this.submitPost.bind(this);
-		this.getPartiallyAlteredNode = this.getPartiallyAlteredNode.bind(this);
-		this.getAlteredNode = this.getAlteredNode.bind(this);
-		this.setIterator = this.setIterator.bind(this);
-		this.setLinkPlaceholder = this.setLinkPlaceholder.bind(this);
-		this.setFiles = this.setFiles.bind(this);
+		this.deleteElement = this.deleteElement.bind(this);
+		this.textChange = this.textChange.bind(this);
+		this.boldToggle = this.boldToggle.bind(this);
+		this.underlineToggle = this.underlineToggle.bind(this);
 		this.setTitle = this.setTitle.bind(this);
-		this.setFileNames = this.setFileNames.bind(this);
+		this.setFile = this.setFile.bind(this);
+		this.setFileName = this.setFileName.bind(this);
+	}
+
+	componentDidMount() {
+		this.setInitial(this.props);
+	}
+
+	componentWillReceiveProps(nextProps) {
+		this.setInitial(nextProps);
+	}
+
+	setInitial(props) {
+		if (props.post.content !== undefined) {
+			const postContent = props.post.content.rendered;
+			const elementsP = this.getNodes('p', parse5.parseFragment(postContent)).map((el) => {
+				return { ...el, ...this.decomposeElement(el) };
+			});
+			const elementsTr = this.getNodes('tr', parse5.parseFragment(postContent)).map((el) => {
+				return { ...el, ...this.decomposeElement(el) };
+			});
+
+			this.setState({
+				title: props.post.title.rendered,
+				elementsP: elementsP,
+				elementsTr: elementsTr
+			});
+		}
+	}
+
+	generateHTML(state) {
+		const template =
+			'<div id="cmsmasters_row_" class="cmsmasters_row cmsmasters_color_scheme_default cmsmasters_row_top_default cmsmasters_row_bot_default cmsmasters_row_boxed"><div class="cmsmasters_row_outer_parent"><div class="cmsmasters_row_outer"><div class="cmsmasters_row_inner"><div class="cmsmasters_row_margin"><div id="cmsmasters_column_" class="cmsmasters_column one_first"><div class="cmsmasters_column_inner"><div class="cmsmasters_text">PLACEHOLDER</div></div></div></div></div></div></div></div>';
+		const paragraphs = state.elementsP
+			.map((el) => {
+				const tagName = el.tagName;
+				const ifBold = { start: `${el.bold ? `<strong>` : ``}`, end: `${el.bold ? `</strong>` : ``}` };
+				const ifUnderlined = { start: `${el.underline ? `<u>` : ``}`, end: `${el.underline ? `</u>` : ``}` };
+				const value = el.value;
+				return `<${tagName}>${ifBold.start}${ifUnderlined.start}${value}${ifUnderlined.end}${ifBold.end}</${tagName}>`;
+			})
+			.join('');
+		const table = '<table><tbody>'.concat(
+			state.elementsTr
+				.map((el) => {
+					const ifBold = { start: `${el.bold ? `<strong>` : ``}`, end: `${el.bold ? `</strong>` : ``}` };
+					const ifUnderlined = {
+						start: `${el.underline ? `<u>` : ``}`,
+						end: `${el.underline ? `</u>` : ``}`
+					};
+					const value = el.value;
+					const link = el.link !== '' ? el.link : 'LINK_PLACEHOLDER';
+					return `<tr><td width=\"50%\">${ifBold.start}${ifUnderlined.start}${value}${ifUnderlined.end}${ifBold.end}</td><td width=\"50%\">a href=\"${link}">${el.fileName}</a></td></tr>`;
+				})
+				.join(''),
+			'</tbody></table>'
+		);
+		return template.replace('PLACEHOLDER', paragraphs.concat(table));
+	}
+
+	deleteElement(tag, index) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements.splice(index, 1);
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements.splice(index, 1);
+			this.setState({
+				elementsTr: elements
+			});
+		}
+	}
+
+	setFileName(tag, index, val) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements[index].fileName = val;
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements[index].fileName = val;
+			this.setState({
+				elementsTr: elements
+			});
+		}
+	}
+
+	setFile(tag, index, val) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements[index].file = val;
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements[index].file = val;
+			this.setState({
+				elementsTr: elements
+			});
+		}
+	}
+
+	textChange(tag, index, val) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements[index].value = val;
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements[index].value = val;
+			this.setState({
+				elementsTr: elements
+			});
+		}
+	}
+
+	boldToggle(tag, index, val) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements[index].bold = val;
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements[index].bold = val;
+			this.setState({
+				elementsTr: elements
+			});
+		}
+	}
+
+	boldToggle(tag, index, val) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements[index].bold = val;
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements[index].bold = val;
+			this.setState({
+				elementsTr: elements
+			});
+		}
+	}
+
+	underlineToggle(tag, index, val) {
+		let elements;
+		if (tag === 'p') {
+			elements = this.state.elementsP.slice();
+			elements[index].underline = val;
+			this.setState({
+				elementsP: elements
+			});
+		} else if (tag == 'tr') {
+			elements = this.state.elementsTr.slice();
+			elements[index].underline = val;
+			this.setState({
+				elementsTr: elements
+			});
+		}
 	}
 
 	getNodes(tag, node) {
@@ -48,129 +219,15 @@ class PostViewer extends React.Component {
 		}
 	}
 
-	getHTML() {
-		let node = this.getAlteredNode();
-		return this.getNodeHtmlWithLinkPlaceholders('td', node);
-	}
-
-	getPartiallyAlteredNode(tag, elNode, which, mainNode, index) {
-		const childNodes = mainNode.childNodes;
-		let newMainNode = { ...mainNode };
-		if (childNodes !== undefined) {
-			let newChildNodes = childNodes.map((node) => {
-				if (node.tagName === tag && !node.childNodes.some((el) => el.tagName === 'a')) {
-					if (which === this.iterator[index]) {
-						let newNode = { ...node };
-						newNode.childNodes = elNode.childNodes;
-						newNode.attrs = elNode.attrs;
-						newNode.value = elNode.value;
-						this.iterator.splice(index, 1, ++this.iterator[index]);
-						return newNode;
-					} else {
-						this.iterator.splice(index, 1, ++this.iterator[index]);
-						return node;
-					}
-				} else {
-					return this.getPartiallyAlteredNode(tag, elNode, which, node, index);
-				}
-			});
-			newMainNode.childNodes = newChildNodes;
-			return newMainNode;
-		} else {
-			if (
-				mainNode.tagName === tag &&
-				which === this.iterator[index] &&
-				!mainNode.childNodes.some((el) => el.tagName === 'a')
-			) {
-				let newNode = { ...mainNode };
-				newNode.childNodes = elNode.childNodes;
-				newNode.attrs = elNode.attrs;
-				newNode.value = elNode.value;
-				return newNode;
-			} else {
-				return mainNode;
-			}
-		}
-	}
-
-	setIterator(arr) {
-		this.iterator = arr.map((el) => 0);
-	}
-
-	setInitial(postContent) {
-		this.mainNode = parse5.parseFragment(postContent);
-		const tdlinks = this.getNodes('td', this.mainNode)
-			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
-			.map((r) => null);
-		this.tdLinks = tdlinks.slice();
-		this.files = tdlinks.slice();
-		this.fileNames = tdlinks.slice();
-	}
-
-	getAlteredNode() {
-		const elementHTML = this.elementHTML;
-		this.setIterator(elementHTML);
-		let tagIterator = {};
-		this.tags.forEach((el) => (tagIterator[el] = 0));
-		elementHTML.forEach((el, index) => {
-			let elNode = parse5.parseFragment(el);
-			elNode = elNode.childNodes[0];
-			this.mainNode = this.getPartiallyAlteredNode(
-				elNode.tagName,
-				elNode,
-				tagIterator[elNode.tagName],
-				this.mainNode,
-				index
-			);
-			++tagIterator[elNode.tagName];
-		});
-		return this.mainNode;
-	}
-
-	setLinkPlaceholder(tag, index, reset) {
-		reset ? this.tdLinks.splice(index, 1, null) : this.tdLinks.splice(index, 1, `link${index}`);
-	}
-
-	setFiles(file, index, reset) {
-		reset ? this.files.splice(index, 1, null) : this.files.splice(index, 1, file);
-	}
-
-	setFileNames(value, index, reset) {
-		reset ? this.fileNames.splice(index, 1, null) : this.fileNames.splice(index, 1, value);
-	}
-
-	getNodeHtmlWithLinkPlaceholders(tag, node) {
-		let actualNode = parse5.serialize(node);
-		let linksArr = this.getNodes(tag, node)
-			.filter((el) => el.childNodes.some((el2) => el2.tagName === 'a'))
-			.map((v) => parse5.serialize(v));
-		linksArr.forEach((el, index) => {
-			if (this.tdLinks[index] !== null) actualNode = actualNode.replace(el, this.tdLinks[index]);
-		});
-		return actualNode;
-	}
-
-	setElementHTML(index, tagName, value, isBold, isUnderlined) {
-		const ifBold = { start: `${isBold ? `<strong>` : ``}`, end: `${isBold ? `</strong>` : ``}` };
-		const ifUnderlined = { start: `${isUnderlined ? `<u>` : ``}`, end: `${isUnderlined ? `</u>` : ``}` };
-		let output = `<${tagName}>${ifBold.start}${ifUnderlined.start}${value}${ifUnderlined.end}${ifBold.end}</${tagName}>`;
-		this.elementHTML.splice(index, 1, output);
-		this.iterator.splice(index, 1, 0);
-	}
-
-	clearElementHTML() {
-		this.elementHTML = [];
-	}
-
-	submitPost(e) {
+	submitPost(e, state) {
 		e.preventDefault();
-
+		console.log(this.generateHTML(state));
 		let formData = new FormData();
-		formData.append('title', this.title);
-		formData.append('content', this.getHTML());
-		this.files
-			.filter((el1) => el1 !== null)
-			.forEach((el, index) => formData.append('file', el, this.fileNames[index]));
+		formData.append('title', state.title);
+		formData.append('content', this.generateHTML(state));
+		state.elementsTr.forEach((el) => {
+			formData.append('file', el.file, el.fileName);
+		});
 
 		axios({
 			method: 'post',
@@ -186,49 +243,83 @@ class PostViewer extends React.Component {
 			});
 	}
 
-	setTitle(val) {
-		this.title = val;
+	setTitle(title) {
+		this.setState({
+			title: title
+		});
 	}
 
-	getPostViewerElement() {
-		let postViewerElements = this.tags.map((tag) => this.getNodes(tag, this.mainNode));
-		this.elementHTML = [];
-		postViewerElements.forEach((el) => {
-			el.forEach((el2) => {
-				if (!el2.childNodes.some((el3) => el3.tagName === 'a')) {
-					this.elementHTML.push(`<${el2.tagName}>${parse5.serialize(el2)}</${el2.tagName}>`);
-				}
-			});
-		});
-		postViewerElements = postViewerElements
-			.reduce((previousValue, currentValue, index, array) => {
-				return previousValue.concat(currentValue);
-			})
-			.filter((el) => !el.childNodes.some((el2) => el2.tagName === 'a'));
-
-		return postViewerElements;
+	decomposeElement(node) {
+		let obj = {};
+		obj['value'] = this.getNodes('#text', node)
+			.filter((el) => el.parentNode.tagName !== 'a')
+			.map((el) => el.value)
+			.filter((el) => el !== '\n')
+			.join('');
+		obj['bold'] = this.getNodes('strong', node).length > 0 || this.getNodes('b', node).length > 0;
+		obj['underline'] =
+			this.getNodes('u', node).length > 0 ||
+			this.getNodes('span', node).some(
+				(span) =>
+					span.attrs !== undefined && span.attrs.some((attr) => attr.value === 'text-decoration: underline;')
+			);
+		let tmp = this.getNodes('a', node).map((el) => this.getNodes('#text', el)).flat().pop();
+		obj['fileName'] = tmp !== undefined ? tmp.value : '';
+		obj['link'] = this.getNodes('a', node)
+			.map((el) => el.attrs)
+			.filter((el) => (el.name = 'href'))
+			.flat()
+			.map((el) => el.value)
+			.pop();
+		obj['isDirty'] = false;
+		obj['file'] = null;
+		return obj;
 	}
 
 	render() {
-		const title = this.props.post ? this.props.post.title.rendered : '';
-		const postContent = this.props.post ? this.props.post.content.rendered : '';
-		this.setInitial(postContent);
-		this.setIterator(this.elementHTML);
-		const postViewerElements = this.getPostViewerElement();
+		const title = this.state.title;
+		const elementsP = this.state.elementsP;
+		const elementsTr = this.state.elementsTr;
+		const elementsPJsx = elementsP.map((el, index) => (
+			<ElementP
+				element={el}
+				key={index}
+				elementId={index}
+				allowFiles={false}
+				name={'Paragraph'}
+				deleteElement={this.deleteElement}
+				textChange={this.textChange}
+				boldToggle={this.boldToggle}
+				underlineToggle={this.underlineToggle}
+				setFileName={this.setFileName}
+				setFile={this.setFile}
+			/>
+		));
+		const elementsTrJsx = elementsTr.map((el, index) => (
+			<ElementP
+				element={el}
+				key={index}
+				elementId={index}
+				allowFiles={true}
+				name={'Row'}
+				deleteElement={this.deleteElement}
+				textChange={this.textChange}
+				boldToggle={this.boldToggle}
+				underlineToggle={this.underlineToggle}
+				setFileName={this.setFileName}
+				setFile={this.setFile}
+			/>
+		));
 
 		return (
 			<React.Fragment>
 				{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 				<form>
-					<PostViewerElements
-						getNodes={this.getNodes}
-						elements={postViewerElements}
-						setElementHTML={this.setElementHTML}
-						setLinkPlaceholder={this.setLinkPlaceholder}
-						setFiles={this.setFiles}
-						setFileNames={this.setFileNames}
-					/>
-					{this.props.post !== '' ? <button onClick={this.submitPost}>Submit</button> : null}
+					{elementsPJsx}
+					{elementsTrJsx}
+					{this.props.post !== '' ? (
+						<button onClick={(e) => this.submitPost(e, this.state)}>Submit</button>
+					) : null}
 				</form>
 			</React.Fragment>
 		);

@@ -8,16 +8,19 @@ var wp = new WPAPI({
 	password: wpConfig.password
 });
 
-var multer  = require('multer')
-var upload = multer({ dest: 'uploads/' })
+var multer = require('multer');
+var upload = multer({ dest: 'uploads/' });
 
 module.exports = (app) => {
 	app.all('*', (req, res, next) => {
 		res.header('Access-Control-Allow-Origin', '*');
 		// res.header('Access-Control-Allow-Headers', 'X-Requested-With');
-    	res.header("Access-Control-Allow-Credentials", "true");
-    	res.header("Access-Control-Allow-Methods", "GET,HEAD,OPTIONS,POST,PUT");
-    	res.header("Access-Control-Allow-Headers", "Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers");
+		res.header('Access-Control-Allow-Credentials', 'true');
+		res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
+		res.header(
+			'Access-Control-Allow-Headers',
+			'Access-Control-Allow-Headers, Origin,Accept, X-Requested-With, Content-Type, Access-Control-Request-Method, Access-Control-Request-Headers'
+		);
 		next();
 	});
 
@@ -47,7 +50,6 @@ module.exports = (app) => {
 			res.status(500).send('Something broke!');
 		}
 	});
-
 
 	app.post('/update/post', upload.array('file', 12), (req, res) => {
 		try {
