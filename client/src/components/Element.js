@@ -4,7 +4,7 @@ import TdFileInput from './TdFileInput';
 class Element extends React.Component {
 	constructor(props) {
 		super(props);
-		this.tag = this.props.element.tagName;
+		this.tag = this.props.element.tag;
 	}
 
 	deleteElement(tag, index, e) {

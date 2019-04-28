@@ -79,9 +79,29 @@ class PostViewer extends React.Component {
 
 	deleteElement(tag, index) {
 		let elements = this.state.elements;
-		let tmp = elements[tag].slice();
+		let tmp = [ ...elements[tag] ];
 		tmp.splice(index, 1);
-		elements[tag] = tmp.slice();
+		elements[tag] = tmp;
+		this.setState({
+			elements: elements
+		});
+	}
+
+	insertElement(tag, e) {
+		e.preventDefault();
+		const element = {
+			bold: false,
+			underline: false,
+			value: '',
+			link: '',
+			fileName: '',
+			isDirty: true,
+			file: null,
+			node: null,
+			tag: tag
+		};
+		let elements = this.state.elements;
+		elements[tag] = elements[tag].concat(element);
 		this.setState({
 			elements: elements
 		});
@@ -201,6 +221,7 @@ class PostViewer extends React.Component {
 			.pop();
 		obj['isDirty'] = false;
 		obj['file'] = null;
+		obj['tag'] = node.tagName;
 		return obj;
 	}
 
@@ -237,8 +258,9 @@ class PostViewer extends React.Component {
 				{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 				<form>
 					{elementsJsx['p']}
-					<button>add</button>
+					<button onClick={(e) => this.insertElement('p', e)}>add</button>
 					{elementsJsx['tr']}
+					<button onClick={(e) => this.insertElement('tr', e)}>add</button>
 					{this.props.post !== '' ? (
 						<button onClick={(e) => this.submitPost(e, this.state)}>Submit</button>
 					) : null}
