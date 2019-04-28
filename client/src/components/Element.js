@@ -1,13 +1,14 @@
 import React, { Component } from 'react';
 import TdFileInput from './TdFileInput';
 
-class ElementP extends React.Component {
+class Element extends React.Component {
 	constructor(props) {
 		super(props);
 		this.tag = this.props.element.tagName;
 	}
 
 	deleteElement(tag, index, e) {
+		e.preventDefault();
 		this.props.deleteElement(tag, index);
 	}
 
@@ -72,4 +73,4 @@ class ElementP extends React.Component {
 		);
 	}
 }
-export default ElementP;
+export default Element;
