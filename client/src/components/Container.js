@@ -17,6 +17,7 @@ class Container extends React.Component {
 		this.setCategories = this.setCategories.bind(this);
 		this.retrieveAuthors = this.retrieveAuthors.bind(this);
 		this.retrieveCategories = this.retrieveCategories.bind(this);
+		this.filterOutIgnoredObjs = this.filterOutIgnoredObjs.bind(this);
 	}
 
 	componentDidMount() {
@@ -53,21 +54,32 @@ class Container extends React.Component {
 	async retrieveAuthors() {
 		let resposne = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/authors`);
 		let jsonData = await resposne.json();
+		jsonData = this.filterOutIgnoredObjs(jsonData, sharedConfig.ignoredAuthorsIds);
 		return jsonData;
 	}
 
 	async retrieveCategories() {
 		let response = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/categories`);
 		let jsonData = await response.json();
+		jsonData = this.filterOutIgnoredObjs(jsonData, sharedConfig.ignoredCategoriesIds);
 		return jsonData;
+	}
+
+	filterOutIgnoredObjs(objs, ignoredIdsArr) {
+		if (objs !== undefined && ignoredIdsArr.length !== 0) {
+			return objs.filter((el) => !ignoredIdsArr.includes(el.id));
+		} else {
+			return objs;
+		}
 	}
 
 	render() {
 		const { authors, categories } = this.state;
 		const currentPostObj = this.state.currentPost;
+
 		return (
 			<React.Fragment>
-				{currentPostObj !== undefined ? <PostViewer post={currentPostObj} /> : null}
+				{currentPostObj !== undefined ? <PostViewer post={currentPostObj} categories={categories} /> : null}
 				{authors.length !== 0 && categories.length !== 0 ? (
 					<FilterablePostsTable
 						setCurrentPost={this.setCurrentPost}

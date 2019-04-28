@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import parse5 from 'parse5';
 import axios from 'axios';
 import PostTitle from './PostTitle';
-import Element from './Element.js';
+import Element from './Element';
+import FilterSelect from './FilterSelect';
 import sharedConfig from '../sharedConfig.json';
 
 class PostViewer extends React.Component {
@@ -11,7 +12,8 @@ class PostViewer extends React.Component {
 		this.tags = [ 'p', 'tr' ];
 		this.state = {
 			title: '',
-			elements: {}
+			elements: {},
+			categoryId: undefined
 		};
 		this.getNodes = this.getNodes.bind(this);
 		this.deleteElement = this.deleteElement.bind(this);
@@ -21,6 +23,7 @@ class PostViewer extends React.Component {
 		this.setTitle = this.setTitle.bind(this);
 		this.setFile = this.setFile.bind(this);
 		this.setFileName = this.setFileName.bind(this);
+		this.changeCategory = this.changeCategory.bind(this);
 	}
 
 	componentDidMount() {
@@ -32,6 +35,11 @@ class PostViewer extends React.Component {
 	}
 
 	setInitial(props) {
+		if (props.post.categories !== undefined) {
+			this.setState({
+				categoryId: props.post.categories.pop()
+			});
+		}
 		if (props.post.content !== undefined) {
 			const postContent = props.post.content.rendered;
 			let elements = {};
@@ -167,11 +175,17 @@ class PostViewer extends React.Component {
 		}
 	}
 
+	changeCategory(val) {
+		this.setState({
+			categoryId: val
+		});
+	}
+
 	submitPost(e, state) {
 		e.preventDefault();
-		console.log(this.generateHTML(state));
 		let formData = new FormData();
 		formData.append('title', state.title);
+		formData.append('categories', [ state.categoryId ]);
 		formData.append('content', this.generateHTML(state));
 		state.elements['tr'].forEach((el) => {
 			formData.append('file', el.file, el.fileName);
@@ -228,6 +242,7 @@ class PostViewer extends React.Component {
 	render() {
 		const title = this.state.title;
 		const elements = this.state.elements;
+		const categories = this.props.categories;
 		let elementsJsx = {};
 		this.tags.forEach((tag) => {
 			if (elements[tag] !== undefined) {
@@ -255,8 +270,13 @@ class PostViewer extends React.Component {
 
 		return (
 			<React.Fragment>
-				{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 				<form>
+					<FilterSelect
+						onSelectChange={this.changeCategory}
+						arrayOfObjects={categories}
+						selectName={'Kategorie'}
+					/>
+					{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 					{elementsJsx['p']}
 					<button onClick={(e) => this.insertElement('p', e)}>add</button>
 					{elementsJsx['tr']}

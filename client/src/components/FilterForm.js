@@ -7,15 +7,6 @@ class FilterForm extends React.Component {
 		super(props);
 		this.handleFilterAuthorChange = this.handleFilterAuthorChange.bind(this);
 		this.handleFilterCategoryChange = this.handleFilterCategoryChange.bind(this);
-		this.filterOutIgnoredObjs = this.filterOutIgnoredObjs.bind(this);
-	}
-
-	filterOutIgnoredObjs(objs, ignoredIdsArr) {
-		if (objs !== undefined && ignoredIdsArr.length !== 0) {
-			return objs.filter((el) => !ignoredIdsArr.includes(el.id));
-		} else {
-			return objs;
-		}
 	}
 
 	handleFilterAuthorChange(val) {
@@ -27,8 +18,8 @@ class FilterForm extends React.Component {
 	}
 
 	render() {
-		const categories = this.filterOutIgnoredObjs(this.props.categories, sharedConfig.ignoredCategoriesIds);
-		const authors = this.filterOutIgnoredObjs(this.props.authors, sharedConfig.ignoredAuthorsIds);
+		const categories = this.props.categories;
+		const authors = this.props.authors;
 		const selectName = [ 'Autorzy', 'Kategorie' ];
 
 		return (
