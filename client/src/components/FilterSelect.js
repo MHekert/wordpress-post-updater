@@ -13,6 +13,7 @@ class FilterSelect extends React.Component {
 	render() {
 		const arrayOfObjects = this.props.arrayOfObjects;
 		const selectName = this.props.selectName;
+		const selectedOption = this.props.categoryId !== undefined ? this.props.categoryId : -1;
 		let jsxArr = [];
 		jsxArr.push(
 			<option key={-1} value={-1}>
@@ -30,7 +31,9 @@ class FilterSelect extends React.Component {
 		}
 		return (
 			<React.Fragment>
-				<select onChange={this.handleChange}>{jsxArr}</select>
+				<select value={selectedOption} onChange={this.handleChange}>
+					{jsxArr}
+				</select>
 			</React.Fragment>
 		);
 	}

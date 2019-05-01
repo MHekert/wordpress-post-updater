@@ -14,7 +14,6 @@ var upload = multer({ dest: 'uploads/' });
 module.exports = (app) => {
 	app.all('*', (req, res, next) => {
 		res.header('Access-Control-Allow-Origin', '*');
-		// res.header('Access-Control-Allow-Headers', 'X-Requested-With');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
 		res.header(
@@ -51,11 +50,34 @@ module.exports = (app) => {
 		}
 	});
 
-	app.post('/update/post', upload.array('file', 12), (req, res) => {
+	app.post('/update/post', upload.array('file'), async (req, res) => {
 		try {
-			console.log(req.files);
-			console.log(req.body);
-			res.status(200).send('post updated');
+			const categories = JSON.parse(req.body.categories);
+			const uploadedFilesLinks = req.files.map(
+				async (el) =>
+					(await wp.media().file(el.path, el.originalname).create({
+						title: el.originalname
+					})).source_url
+			);
+
+			Promise.all(uploadedFilesLinks)
+				.then((links) =>
+					links.reduce((previousValue, currentValue, index, array) => {
+						return previousValue.replace('LINK_PLACEHOLDER', currentValue);
+					}, req.body.content)
+				)
+				.then(async (newContent) => {
+					//update post
+					if (req.body.id != null) {
+						return await wp.posts().id(req.body.id).update({
+							title: req.body.title,
+							status: 'publish',
+							categories: categories,
+							content: newContent
+						});
+					}
+				})
+				.then((response) => res.status(200).send({ link: response.link }));
 		} catch (e) {
 			res.status(500).send('Something broke!');
 		}

@@ -77,12 +77,12 @@ class PostViewer extends React.Component {
 					};
 					const value = el.value;
 					const link = el.link !== '' ? el.link : 'LINK_PLACEHOLDER';
-					return `<tr><td width=\"50%\">${ifBold.start}${ifUnderlined.start}${value}${ifUnderlined.end}${ifBold.end}</td><td width=\"50%\">a href=\"${link}">${el.fileName}</a></td></tr>`;
+					return `<tr><td width=\"50%\">${ifBold.start}${ifUnderlined.start}${value}${ifUnderlined.end}${ifBold.end}</td><td width=\"50%\"><a href=\"${link}">${el.fileName}</a></td></tr>`;
 				})
 				.join(''),
 			'</tbody></table>'
 		);
-		return template.replace('PLACEHOLDER', paragraphs.concat(table));
+		return parse5.serialize(parse5.parseFragment(template.replace('PLACEHOLDER', paragraphs.concat(table))));
 	}
 
 	deleteElement(tag, index) {
@@ -126,6 +126,7 @@ class PostViewer extends React.Component {
 	setFile(tag, index, val) {
 		let elements = this.state.elements;
 		elements[tag][index].file = val;
+		elements[tag][index].link = '';
 		this.setState({
 			elements: elements
 		});
@@ -183,9 +184,11 @@ class PostViewer extends React.Component {
 
 	submitPost(e, state) {
 		e.preventDefault();
+		const postId = this.props.post.id;
 		let formData = new FormData();
+		formData.append('id', postId);
 		formData.append('title', state.title);
-		formData.append('categories', [ state.categoryId ]);
+		formData.append('categories', JSON.stringify([ state.categoryId ]));
 		formData.append('content', this.generateHTML(state));
 		state.elements['tr'].forEach((el) => {
 			formData.append('file', el.file, el.fileName);
@@ -275,6 +278,7 @@ class PostViewer extends React.Component {
 						onSelectChange={this.changeCategory}
 						arrayOfObjects={categories}
 						selectName={'Kategorie'}
+						categoryId={this.state.categoryId}
 					/>
 					{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 					{elementsJsx['p']}
