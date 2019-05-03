@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import sharedConfig from '../sharedConfig.json';
 import Post from './Post';
+import _ from 'lodash';
 
 class PostsList extends React.Component {
 	constructor(props) {
@@ -43,6 +44,10 @@ class PostsList extends React.Component {
 		}
 	}
 
+	sortPosts(posts, orderBy) {
+		return _.orderBy(posts, orderBy, 'desc');
+	}
+
 	render() {
 		let filteredPosts = this.props.posts;
 		const { filterAuthorId, filterCategoryId } = this.props;
@@ -53,6 +58,7 @@ class PostsList extends React.Component {
 		filteredPosts = this.filterByCategory(filteredPosts, filterCategoryId);
 		filteredPosts = this.filterOutIgnoredCategories(filteredPosts, ignoredCategoriesIds);
 		filteredPosts = this.filterByTitle(filteredPosts, ignoredKeywords);
+		filteredPosts = this.sortPosts(filteredPosts, 'date');
 
 		let arrPosts = [];
 		if (filteredPosts !== undefined) {

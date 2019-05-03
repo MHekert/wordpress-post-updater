@@ -24,6 +24,7 @@ class PostViewer extends React.Component {
 		this.setFile = this.setFile.bind(this);
 		this.setFileName = this.setFileName.bind(this);
 		this.changeCategory = this.changeCategory.bind(this);
+		this.reloadPost = this.reloadPost.bind(this);
 	}
 
 	componentDidMount() {
@@ -32,6 +33,10 @@ class PostViewer extends React.Component {
 
 	componentWillReceiveProps(nextProps) {
 		this.setInitial(nextProps);
+	}
+
+	reloadPost(postId) {
+		this.props.reloadPost(postId);
 	}
 
 	setInitial(props) {
@@ -200,11 +205,11 @@ class PostViewer extends React.Component {
 			data: formData,
 			config: { headers: { 'Content-Type': 'multipart/form-data' } }
 		})
-			.then(function(response) {
+			.then((response) => {
 				console.log(response);
-				//TODO reload updated post
+				this.reloadPost(postId);
 			})
-			.catch(function(error) {
+			.catch((error) => {
 				console.log(error);
 			});
 	}

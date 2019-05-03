@@ -8,50 +8,13 @@ class FilterablePostsTable extends React.Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			posts: [],
-			isCompletePostsList: false,
 			filterText: '',
 			filterAuthorId: -1,
-			filterCategoryId: -1
+			filterCategoryId: -1,
+			orderBy: 2
 		};
 		this.handleFilterAuthorChange = this.handleFilterAuthorChange.bind(this);
 		this.handleFilterCategoryChange = this.handleFilterCategoryChange.bind(this);
-
-		this.retrievePosts = this.retrievePosts.bind(this);
-
-		this.setPosts = this.setPosts.bind(this);
-	}
-
-	componentDidMount() {
-		this.setPosts(this.state.posts, 1, this.retrievePosts);
-	}
-
-	async retrievePosts(postsPage) {
-		let response = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/posts/${postsPage}`);
-		let jsonData = await response.json();
-		return jsonData;
-	}
-
-	async setPosts(actualPosts, whichPage, retrievePosts) {
-		try {
-			let response = await retrievePosts(whichPage);
-			let tmpPosts = [];
-			if (whichPage <= response.totalPages) {
-				tmpPosts = tmpPosts.concat(actualPosts, response.posts);
-				this.setState({
-					posts: tmpPosts
-				});
-				if (whichPage < response.totalPages) {
-					this.setPosts(tmpPosts, ++whichPage, retrievePosts);
-				} else {
-					this.setState({
-						isCompletePostsList: true
-					});
-				}
-			}
-		} catch (e) {
-			console.error(e);
-		}
 	}
 
 	handleFilterAuthorChange(newAuthor) {
@@ -67,8 +30,8 @@ class FilterablePostsTable extends React.Component {
 	}
 
 	render() {
-		const { authors, categories } = this.props;
-		const { posts, filterAuthorId, filterCategoryId } = this.state;
+		const { authors, categories, posts } = this.props;
+		const { filterAuthorId, filterCategoryId, orderBy } = this.state;
 		return (
 			<React.Fragment>
 				<FilterForm
@@ -86,6 +49,7 @@ class FilterablePostsTable extends React.Component {
 						posts={posts}
 						filterAuthorId={filterAuthorId}
 						filterCategoryId={filterCategoryId}
+						orderBy={orderBy}
 					/>
 				) : (
 					<Spinner> </Spinner>
