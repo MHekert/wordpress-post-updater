@@ -37,7 +37,7 @@ class PostViewer extends React.Component {
 	setInitial(props) {
 		if (props.post.categories !== undefined) {
 			this.setState({
-				categoryId: props.post.categories.pop()
+				categoryId: props.post.categories[0]
 			});
 		}
 		if (props.post.content !== undefined) {
@@ -202,6 +202,7 @@ class PostViewer extends React.Component {
 		})
 			.then(function(response) {
 				console.log(response);
+				//TODO reload updated post
 			})
 			.catch(function(error) {
 				console.log(error);
@@ -277,8 +278,8 @@ class PostViewer extends React.Component {
 					<FilterSelect
 						onSelectChange={this.changeCategory}
 						arrayOfObjects={categories}
-						selectName={'Kategorie'}
-						categoryId={this.state.categoryId}
+						selectName={null}
+						actualVal={this.state.categoryId}
 					/>
 					{this.props.post !== '' ? <PostTitle title={title} setTitle={this.setTitle} /> : null}
 					{elementsJsx['p']}

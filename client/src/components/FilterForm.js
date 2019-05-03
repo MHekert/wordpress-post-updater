@@ -21,6 +21,7 @@ class FilterForm extends React.Component {
 		const categories = this.props.categories;
 		const authors = this.props.authors;
 		const selectName = [ 'Autorzy', 'Kategorie' ];
+		const { actualAuthorId, actualCategoryId } = this.props;
 
 		return (
 			<React.Fragment>
@@ -28,11 +29,13 @@ class FilterForm extends React.Component {
 					onSelectChange={this.handleFilterAuthorChange}
 					arrayOfObjects={authors}
 					selectName={selectName[0]}
+					actualVal={actualAuthorId}
 				/>
 				<FilterSelect
 					onSelectChange={this.handleFilterCategoryChange}
 					arrayOfObjects={categories}
 					selectName={selectName[1]}
+					actualVal={actualCategoryId}
 				/>
 			</React.Fragment>
 		);

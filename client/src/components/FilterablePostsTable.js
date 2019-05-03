@@ -41,13 +41,13 @@ class FilterablePostsTable extends React.Component {
 				this.setState({
 					posts: tmpPosts
 				});
-			}
-			if (whichPage < response.totalPages) {
-				this.setPosts(tmpPosts, ++whichPage, retrievePosts);
-			} else {
-				this.setState({
-					isCompletePostsList: true
-				});
+				if (whichPage < response.totalPages) {
+					this.setPosts(tmpPosts, ++whichPage, retrievePosts);
+				} else {
+					this.setState({
+						isCompletePostsList: true
+					});
+				}
 			}
 		} catch (e) {
 			console.error(e);
@@ -67,9 +67,8 @@ class FilterablePostsTable extends React.Component {
 	}
 
 	render() {
-		const posts = this.state.posts;
 		const { authors, categories } = this.props;
-		const { filterAuthorId, filterCategoryId } = this.state;
+		const { posts, filterAuthorId, filterCategoryId } = this.state;
 		return (
 			<React.Fragment>
 				<FilterForm
@@ -78,6 +77,8 @@ class FilterablePostsTable extends React.Component {
 					filterOutIgnoredCategories={this.filterOutIgnoredCategories}
 					authors={authors}
 					categories={categories}
+					actualAuthorId={filterAuthorId}
+					actualCategoryId={filterCategoryId}
 				/>
 				{posts.length !== 0 ? (
 					<PostList

@@ -13,13 +13,15 @@ class FilterSelect extends React.Component {
 	render() {
 		const arrayOfObjects = this.props.arrayOfObjects;
 		const selectName = this.props.selectName;
-		const selectedOption = this.props.categoryId !== undefined ? this.props.categoryId : -1;
+		const selectedOption = this.props.actualVal !== undefined ? this.props.actualVal : -1;
 		let jsxArr = [];
-		jsxArr.push(
-			<option key={-1} value={-1}>
-				{selectName}
-			</option>
-		);
+		if (selectName !== null) {
+			jsxArr.push(
+				<option key={-1} value={-1}>
+					{selectName}
+				</option>
+			);
+		}
 		if (arrayOfObjects !== undefined) {
 			arrayOfObjects.forEach((obj) => {
 				jsxArr.push(
