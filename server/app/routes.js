@@ -24,11 +24,21 @@ module.exports = (app) => {
 	});
 
 	app.get('/posts/:pageNumber', async (req, res) => {
-		let page = parseInt(req.params.pageNumber, 10);
+		const page = parseInt(req.params.pageNumber, 10);
 		try {
-			let wpResponse = await wp.posts().perPage(sharedConfig.postsPerPage).page(page);
-			let responseObj = { posts: wpResponse, totalPages: wpResponse._paging.totalPages };
+			const wpResponse = await wp.posts().perPage(sharedConfig.postsPerPage).page(page);
+			const responseObj = { posts: wpResponse, totalPages: wpResponse._paging.totalPages };
 			res.json(responseObj);
+		} catch (e) {
+			res.status(500).send('Something broke!');
+		}
+	});
+
+	app.get('/post/:postId', async (req, res) => {
+		const postId = parseInt(req.params.postId, 10);
+		try {
+			const wpResponse = await wp.posts().id(postId);
+			res.json(wpResponse);
 		} catch (e) {
 			res.status(500).send('Something broke!');
 		}

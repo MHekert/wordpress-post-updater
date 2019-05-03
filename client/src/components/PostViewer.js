@@ -10,10 +10,12 @@ class PostViewer extends React.Component {
 	constructor(props) {
 		super(props);
 		this.tags = [ 'p', 'tr' ];
+		this.status = [ { id: 1, name: 'publish' }, { id: 2, name: 'draft' } ];
 		this.state = {
 			title: '',
 			elements: {},
-			categoryId: undefined
+			categoryId: undefined,
+			statusIndex: this.status[0]
 		};
 		this.getNodes = this.getNodes.bind(this);
 		this.deleteElement = this.deleteElement.bind(this);
@@ -24,6 +26,7 @@ class PostViewer extends React.Component {
 		this.setFile = this.setFile.bind(this);
 		this.setFileName = this.setFileName.bind(this);
 		this.changeCategory = this.changeCategory.bind(this);
+		this.changeStatus = this.changeStatus.bind(this);
 		this.reloadPost = this.reloadPost.bind(this);
 	}
 
@@ -187,6 +190,12 @@ class PostViewer extends React.Component {
 		});
 	}
 
+	changeStatus(val) {
+		this.setState({
+			statusIndex: val
+		});
+	}
+
 	submitPost(e, state) {
 		e.preventDefault();
 		const postId = this.props.post.id;
@@ -252,6 +261,7 @@ class PostViewer extends React.Component {
 		const title = this.state.title;
 		const elements = this.state.elements;
 		const categories = this.props.categories;
+		const status = this.status;
 		let elementsJsx = {};
 		this.tags.forEach((tag) => {
 			if (elements[tag] !== undefined) {
@@ -291,6 +301,12 @@ class PostViewer extends React.Component {
 					<button onClick={(e) => this.insertElement('p', e)}>add</button>
 					{elementsJsx['tr']}
 					<button onClick={(e) => this.insertElement('tr', e)}>add</button>
+					<FilterSelect
+						onSelectChange={this.changeStatus}
+						arrayOfObjects={status}
+						selectName={null}
+						actualVal={this.state.statusIndex}
+					/>
 					{this.props.post !== '' ? (
 						<button onClick={(e) => this.submitPost(e, this.state)}>Submit</button>
 					) : null}
