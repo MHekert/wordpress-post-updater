@@ -16,8 +16,7 @@ class PostsList extends React.Component {
 
 		this.state = {
 			orderedBy: 1,
-			orderAsc: false,
-			filteredPosts: this.props.posts
+			orderAsc: false
 		};
 		this.columns = [
 			{ name: 'Numer', postKey: 'title.rendered' },
@@ -58,18 +57,16 @@ class PostsList extends React.Component {
 		}
 	}
 
-	changeOrder(postKey, columnIndex) {
+	changeOrder(columnIndex) {
 		const { orderedBy, orderAsc } = this.state;
 		if (orderedBy !== columnIndex) {
 			this.setState({
 				orderedBy: columnIndex,
-				orderAsc: false,
-				filteredPosts: this.sortPosts(this.state.filteredPosts, columnIndex, false)
+				orderAsc: false
 			});
 		} else {
 			this.setState({
-				orderAsc: !orderAsc,
-				filteredPosts: this.sortPosts(this.state.filteredPosts, columnIndex, !orderAsc)
+				orderAsc: !orderAsc
 			});
 		}
 	}
@@ -95,22 +92,12 @@ class PostsList extends React.Component {
 		filteredPosts = this.filterOutIgnoredCategories(filteredPosts, ignoredCategoriesIds);
 		filteredPosts = this.filterByTitle(filteredPosts, ignoredKeywords);
 		filteredPosts = this.sortPosts(filteredPosts, orderedBy, orderAsc);
-		this.setState({
-			filteredPosts: filteredPosts
-		});
-	}
-
-	componentDidMount() {
-		this.filterOutPosts();
-	}
-
-	componentWillReceiveProps(nextProps) {
-		this.filterOutPosts();
+		return filteredPosts;
 	}
 
 	render() {
 		const columns = this.columns;
-		const { filteredPosts } = this.state;
+		const filteredPosts = this.filterOutPosts();
 
 		let arrPosts = [];
 		if (filteredPosts !== undefined) {
@@ -135,7 +122,6 @@ class PostsList extends React.Component {
 								<Column
 									name={el.name}
 									columnIndex={index}
-									postKey={el.postKey}
 									key={el.name}
 									changeOrder={this.changeOrder}
 								/>

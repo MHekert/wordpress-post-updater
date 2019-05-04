@@ -5,13 +5,13 @@ class Column extends React.Component {
 		super(props);
 	}
 
-	handleClick(e, orderByPostKey, columnIndex) {
-		this.props.changeOrder(orderByPostKey, columnIndex);
+	handleClick(columnIndex) {
+		this.props.changeOrder(columnIndex);
 	}
 
 	render() {
 		const { name, columnIndex, postKey } = this.props;
-		return <th onClick={(e) => this.handleClick(e, postKey, columnIndex)}>{name}</th>;
+		return <th onClick={(e) => this.handleClick(columnIndex)}>{name}</th>;
 	}
 }
 export default Column;
