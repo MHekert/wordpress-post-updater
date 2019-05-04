@@ -50,6 +50,7 @@ class FilterablePostsTable extends React.Component {
 						filterAuthorId={filterAuthorId}
 						filterCategoryId={filterCategoryId}
 						orderBy={orderBy}
+						setPostUpdateMode={this.props.setPostUpdateMode}
 					/>
 				) : (
 					<Spinner> </Spinner>

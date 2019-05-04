@@ -60,36 +60,59 @@ module.exports = (app) => {
 		}
 	});
 
-	app.post('/update/post', upload.array('file'), async (req, res) => {
+	app.post('/post/update', upload.array('file'), uploadFiles, async (req, res) => {
 		try {
+			const newContent = req.newContent;
 			const categories = JSON.parse(req.body.categories);
-			const uploadedFilesLinks = req.files.map(
-				async (el) =>
-					(await wp.media().file(el.path, el.originalname).create({
-						title: el.originalname
-					})).source_url
-			);
-
-			Promise.all(uploadedFilesLinks)
-				.then((links) =>
-					links.reduce((previousValue, currentValue, index, array) => {
-						return previousValue.replace('LINK_PLACEHOLDER', currentValue);
-					}, req.body.content)
-				)
-				.then(async (newContent) => {
-					//update post
-					if (req.body.id != null) {
-						return await wp.posts().id(req.body.id).update({
-							title: req.body.title,
-							status: 'publish',
-							categories: categories,
-							content: newContent
-						});
-					}
-				})
-				.then((response) => res.status(200).send({ link: response.link }));
+			if (req.body.id != null) {
+				response = await wp.posts().id(req.body.id).update({
+					title: req.body.title,
+					status: 'publish',
+					categories: categories,
+					content: newContent
+				});
+			} else {
+				response = await wp.posts().create({
+					title: req.body.title,
+					status: 'publish',
+					categories: categories,
+					content: newContent
+				});
+			}
+			res.status(200).send({ link: response.link, id: response.id });
 		} catch (e) {
 			res.status(500).send('Something broke!');
 		}
 	});
+};
+
+uploadFiles = async (req, res, next) => {
+	const uploadedFilesLinks = req.files.map(async (el) => {
+		try {
+			return (await wp.media().file(el.path, el.originalname).create({
+				title: el.originalname
+			})).source_url;
+		} catch (e) {
+			return null;
+		}
+	});
+	Promise.all(uploadedFilesLinks)
+		.then((links) => {
+			if (links.some((el) => el === null)) {
+				res.status(500).send(`Can't upload this file!`);
+				throw new Error('Not allowed file');
+			} else {
+				return links;
+			}
+		})
+		.then((links) => {
+			const newContent = links.reduce((previousValue, currentValue, index, array) => {
+				return previousValue.replace('LINK_PLACEHOLDER', currentValue);
+			}, req.body.content);
+			req.newContent = newContent;
+			next();
+		})
+		.catch((err) => {
+			console.log(err);
+		});
 };

@@ -25,6 +25,7 @@ class Post extends React.Component {
 
 	handleClick(e) {
 		this.props.setCurrentPost(this.props.post);
+		this.props.setPostUpdateMode(true);
 	}
 
 	render() {

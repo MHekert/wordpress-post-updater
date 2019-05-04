@@ -3,6 +3,7 @@ import sharedConfig from '../sharedConfig.json';
 import FilterablePostsTable from './FilterablePostsTable';
 import PostViewer from './PostViewer';
 import Spinner from './Spinner';
+import { throws } from 'assert';
 
 class Container extends React.Component {
 	constructor(props) {
@@ -12,7 +13,8 @@ class Container extends React.Component {
 			isCompletePostsList: false,
 			authors: [],
 			categories: [],
-			currentPost: undefined
+			currentPost: undefined,
+			updateMode: true
 		};
 		this.setCurrentPost = this.setCurrentPost.bind(this);
 		this.setAuthors = this.setAuthors.bind(this);
@@ -24,6 +26,7 @@ class Container extends React.Component {
 		this.retrievePosts = this.retrievePosts.bind(this);
 		this.setPosts = this.setPosts.bind(this);
 		this.reloadPost = this.reloadPost.bind(this);
+		this.setPostUpdateMode = this.setPostUpdateMode.bind(this);
 	}
 
 	componentDidMount() {
@@ -40,6 +43,7 @@ class Container extends React.Component {
 		this.setState({
 			posts: newPosts
 		});
+		this.setPostUpdateMode(true);
 		this.setCurrentPost(updatedPost);
 	}
 
@@ -119,14 +123,34 @@ class Container extends React.Component {
 		}
 	}
 
+	setPostUpdateMode(isUpdateMode) {
+		this.setState({
+			updateMode: isUpdateMode
+		});
+	}
+
 	render() {
-		const { authors, categories, posts } = this.state;
+		const { authors, categories, posts, updateMode } = this.state;
 		const currentPostObj = this.state.currentPost;
 
 		return (
 			<React.Fragment>
-				{currentPostObj !== undefined ? (
-					<PostViewer post={currentPostObj} categories={categories} reloadPost={this.reloadPost} />
+				<button onClick={(e) => this.setPostUpdateMode(false)}>Empty Post</button>
+				{currentPostObj !== undefined && updateMode ? (
+					<PostViewer
+						post={currentPostObj}
+						categories={categories}
+						reloadPost={this.reloadPost}
+						updateMode={updateMode}
+					/>
+				) : null}
+				{!updateMode ? (
+					<PostViewer
+						post={{}}
+						categories={categories}
+						reloadPost={this.reloadPost}
+						updateMode={updateMode}
+					/>
 				) : null}
 				{authors.length !== 0 && categories.length !== 0 ? (
 					<FilterablePostsTable
@@ -134,6 +158,7 @@ class Container extends React.Component {
 						authors={authors}
 						categories={categories}
 						posts={posts}
+						setPostUpdateMode={this.setPostUpdateMode}
 					/>
 				) : (
 					<Spinner />

@@ -47,20 +47,27 @@ class PostViewer extends React.Component {
 			this.setState({
 				categoryId: props.post.categories[0]
 			});
+		} else {
+			this.setState({
+				categoryId: props.categories[0].id
+			});
 		}
+		let elements = {};
+		this.tags.forEach((tag) => (elements[tag] = []));
 		if (props.post.content !== undefined) {
 			const postContent = props.post.content.rendered;
-			let elements = {};
 			this.tags.forEach((tag) => {
 				elements[tag] = this.getNodes(tag, parse5.parseFragment(postContent)).map((el) => {
 					return { ...el, ...this.decomposeElement(el) };
 				});
 			});
 			this.setState({
-				title: props.post.title.rendered,
-				elements: elements
+				title: props.post.title.rendered
 			});
 		}
+		this.setState({
+			elements: elements
+		});
 	}
 
 	generateHTML(state) {
@@ -68,7 +75,7 @@ class PostViewer extends React.Component {
 			'<div id="cmsmasters_row_" class="cmsmasters_row cmsmasters_color_scheme_default cmsmasters_row_top_default cmsmasters_row_bot_default cmsmasters_row_boxed"><div class="cmsmasters_row_outer_parent"><div class="cmsmasters_row_outer"><div class="cmsmasters_row_inner"><div class="cmsmasters_row_margin"><div id="cmsmasters_column_" class="cmsmasters_column one_first"><div class="cmsmasters_column_inner"><div class="cmsmasters_text">PLACEHOLDER</div></div></div></div></div></div></div></div>';
 		const paragraphs = state.elements['p']
 			.map((el) => {
-				const tagName = el.tagName;
+				const tagName = el.tag;
 				const ifBold = { start: `${el.bold ? `<strong>` : ``}`, end: `${el.bold ? `</strong>` : ``}` };
 				const ifUnderlined = { start: `${el.underline ? `<u>` : ``}`, end: `${el.underline ? `</u>` : ``}` };
 				const value = el.value;
@@ -200,23 +207,25 @@ class PostViewer extends React.Component {
 		e.preventDefault();
 		const postId = this.props.post.id;
 		let formData = new FormData();
-		formData.append('id', postId);
+		const path = '/post/update';
+		if (postId !== undefined) {
+			formData.append('id', postId);
+		}
 		formData.append('title', state.title);
 		formData.append('categories', JSON.stringify([ state.categoryId ]));
 		formData.append('content', this.generateHTML(state));
 		state.elements['tr'].forEach((el) => {
 			formData.append('file', el.file, el.fileName);
 		});
-
 		axios({
 			method: 'post',
-			url: `${sharedConfig.backendPath}:${sharedConfig.backendPort}/update/post`,
+			url: `${sharedConfig.backendPath}:${sharedConfig.backendPort}${path}`,
 			data: formData,
 			config: { headers: { 'Content-Type': 'multipart/form-data' } }
 		})
 			.then((response) => {
 				console.log(response);
-				this.reloadPost(postId);
+				this.reloadPost(response.data.id);
 			})
 			.catch((error) => {
 				console.log(error);
@@ -261,6 +270,7 @@ class PostViewer extends React.Component {
 		const title = this.state.title;
 		const elements = this.state.elements;
 		const categories = this.props.categories;
+		const updateMode = this.props.updateMode;
 		const status = this.status;
 		let elementsJsx = {};
 		this.tags.forEach((tag) => {
@@ -307,8 +317,11 @@ class PostViewer extends React.Component {
 						selectName={null}
 						actualVal={this.state.statusIndex}
 					/>
-					{this.props.post !== '' ? (
-						<button onClick={(e) => this.submitPost(e, this.state)}>Submit</button>
+					{this.props.post !== '' && !updateMode ? (
+						<button onClick={(e) => this.submitPost(e, this.state)}>Create</button>
+					) : null}
+					{this.props.post !== '' && updateMode ? (
+						<button onClick={(e) => this.submitPost(e, this.state)}>Update</button>
 					) : null}
 				</form>
 			</React.Fragment>
