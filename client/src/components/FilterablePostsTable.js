@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import sharedConfig from '../sharedConfig.json';
 import PostList from './PostList';
 import FilterForm from './FilterForm';
 import Spinner from './Spinner.js';
@@ -10,8 +9,7 @@ class FilterablePostsTable extends React.Component {
 		this.state = {
 			filterText: '',
 			filterAuthorId: -1,
-			filterCategoryId: -1,
-			orderBy: 2
+			filterCategoryId: -1
 		};
 		this.handleFilterAuthorChange = this.handleFilterAuthorChange.bind(this);
 		this.handleFilterCategoryChange = this.handleFilterCategoryChange.bind(this);
@@ -49,7 +47,6 @@ class FilterablePostsTable extends React.Component {
 						posts={posts}
 						filterAuthorId={filterAuthorId}
 						filterCategoryId={filterCategoryId}
-						orderBy={orderBy}
 						setPostUpdateMode={this.props.setPostUpdateMode}
 					/>
 				) : (
