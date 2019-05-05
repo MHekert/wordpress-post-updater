@@ -1,7 +1,7 @@
 {
 	"postsPerPage": 100,
 	"backendPort": 8081,
-	"backendPath": "http://localhost",
+	"backendPath": "http://app.local",
 	"ignoredCategoriesIds": [ 1, 68 ],
 	"ignoredAuthorsIds": [ 3 ],
 	"ignoredPosts": {

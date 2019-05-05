@@ -11,9 +11,9 @@ var wp = new WPAPI({
 var multer = require('multer');
 var upload = multer({ dest: 'uploads/' });
 
-module.exports = (app) => {
-	app.all('*', (req, res, next) => {
-		res.header('Access-Control-Allow-Origin', '*');
+module.exports = (app, passport) => {
+	app.all('*', (_req, res, next) => {
+		res.header('Access-Control-Allow-Origin', 'http://app.local:3000');
 		res.header('Access-Control-Allow-Credentials', 'true');
 		res.header('Access-Control-Allow-Methods', 'GET,HEAD,OPTIONS,POST,PUT');
 		res.header(
@@ -84,6 +84,20 @@ module.exports = (app) => {
 			res.status(500).send('Something broke!');
 		}
 	});
+
+	app.post('/login', isNotLoggedIn, function(req, res, next) {
+		passport.authenticate('local', (err, user) => {
+			if (err) res.status(500).send('something broke');
+			if (!user) res.status(404).send('wrong credentials');
+			if (user)
+				req.login(user, function(err) {
+					if (err) {
+						return next(err);
+					}
+					res.status(200).send({ name: user.name, id: user.id });
+				});
+		})(req, res, next);
+	});
 };
 
 uploadFiles = async (req, res, next) => {
@@ -116,3 +130,9 @@ uploadFiles = async (req, res, next) => {
 			console.log(err);
 		});
 };
+
+function isNotLoggedIn(req, res, next) {
+	if (!req.isAuthenticated()) return next();
+	let user = JSON.parse(req.user);
+	res.status(200).send({ name: user.passport.user.name, id: user.passport.user.id });
+}

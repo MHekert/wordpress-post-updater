@@ -2,7 +2,9 @@ import React, { Component } from 'react';
 import sharedConfig from '../sharedConfig.json';
 import FilterablePostsTable from './FilterablePostsTable';
 import PostViewer from './PostViewer';
+import Login from './Login';
 import Spinner from './Spinner';
+import axios from 'axios';
 
 class Container extends React.Component {
 	constructor(props) {
@@ -14,7 +16,8 @@ class Container extends React.Component {
 			authors: [],
 			categories: [],
 			currentPost: undefined,
-			updateMode: true
+			updateMode: true,
+			loggedUserId: undefined
 		};
 		this.setCurrentPost = this.setCurrentPost.bind(this);
 		this.setAuthors = this.setAuthors.bind(this);
@@ -27,12 +30,19 @@ class Container extends React.Component {
 		this.setPosts = this.setPosts.bind(this);
 		this.reloadPost = this.reloadPost.bind(this);
 		this.setPostUpdateMode = this.setPostUpdateMode.bind(this);
+		this.logged = this.logged.bind(this);
 	}
 
 	componentDidMount() {
 		this.setAuthors(this.state.authors, this.retrieveAuthors);
 		this.setCategories(this.state.categories, this.retrieveCategories);
 		this.setPosts(this.state.posts, 1, this.retrievePosts);
+	}
+
+	logged(userId) {
+		this.setState({
+			loggedUserId: userId
+		});
 	}
 
 	async reloadPost(postId) {
@@ -48,14 +58,18 @@ class Container extends React.Component {
 	}
 
 	async retrievePosts(postsPage) {
-		const response = await fetch(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/posts/${postsPage}`);
-		const jsonData = response.json();
+		let instance = axios.create({
+			withCredentials: true
+		});
+		const response = await instance(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/posts/${postsPage}`);
+		const jsonData = response.data;
 		return jsonData;
 	}
 
 	async setPosts(actualPosts, whichPage, retrievePosts) {
 		try {
 			const response = await retrievePosts(whichPage);
+
 			let tmpPosts = [];
 			if (whichPage <= response.totalPages) {
 				tmpPosts = tmpPosts.concat(actualPosts, response.posts);
@@ -129,11 +143,12 @@ class Container extends React.Component {
 	}
 
 	render() {
-		const { authors, categories, posts, updateMode } = this.state;
+		const { authors, categories, posts, updateMode, loggedUserId } = this.state;
 		const currentPostObj = this.state.currentPost;
 
 		return (
 			<React.Fragment>
+				{loggedUserId === undefined ? <Login logged={this.logged} /> : null}
 				<button onClick={(e) => this.setPostUpdateMode(false)}>Empty Post</button>
 				{currentPostObj !== undefined && updateMode ? (
 					<PostViewer
