@@ -29,6 +29,7 @@ class FilterablePostsTable extends React.Component {
 
 	render() {
 		const { authors, categories, posts } = this.props;
+		let { postsPage } = this.props;
 		const { filterAuthorId, filterCategoryId, orderBy } = this.state;
 		return (
 			<React.Fragment>
@@ -42,13 +43,20 @@ class FilterablePostsTable extends React.Component {
 					actualCategoryId={filterCategoryId}
 				/>
 				{posts.length !== 0 ? (
-					<PostList
-						setCurrentPost={this.props.setCurrentPost}
-						posts={posts}
-						filterAuthorId={filterAuthorId}
-						filterCategoryId={filterCategoryId}
-						setPostUpdateMode={this.props.setPostUpdateMode}
-					/>
+					<React.Fragment>
+						<PostList
+							setCurrentPost={this.props.setCurrentPost}
+							posts={posts}
+							filterAuthorId={filterAuthorId}
+							filterCategoryId={filterCategoryId}
+							setPostUpdateMode={this.props.setPostUpdateMode}
+						/>
+						{!this.props.isCompletePostsList ? (
+							<button onClick={(e) => this.props.setPosts(posts, ++postsPage, this.props.retrievePosts)}>
+								Load more
+							</button>
+						) : null}
+					</React.Fragment>
 				) : (
 					<Spinner> </Spinner>
 				)}

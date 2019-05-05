@@ -3,7 +3,6 @@ import sharedConfig from '../sharedConfig.json';
 import FilterablePostsTable from './FilterablePostsTable';
 import PostViewer from './PostViewer';
 import Spinner from './Spinner';
-import { throws } from 'assert';
 
 class Container extends React.Component {
 	constructor(props) {
@@ -11,6 +10,7 @@ class Container extends React.Component {
 		this.state = {
 			posts: [],
 			isCompletePostsList: false,
+			postsPage: 1,
 			authors: [],
 			categories: [],
 			currentPost: undefined,
@@ -60,11 +60,10 @@ class Container extends React.Component {
 			if (whichPage <= response.totalPages) {
 				tmpPosts = tmpPosts.concat(actualPosts, response.posts);
 				this.setState({
-					posts: tmpPosts
+					posts: tmpPosts,
+					postsPage: whichPage
 				});
-				if (whichPage < response.totalPages) {
-					this.setPosts(tmpPosts, ++whichPage, retrievePosts);
-				} else {
+				if (whichPage === response.totalPages) {
 					this.setState({
 						isCompletePostsList: true
 					});
@@ -153,13 +152,19 @@ class Container extends React.Component {
 					/>
 				) : null}
 				{authors.length !== 0 && categories.length !== 0 ? (
-					<FilterablePostsTable
-						setCurrentPost={this.setCurrentPost}
-						authors={authors}
-						categories={categories}
-						posts={posts}
-						setPostUpdateMode={this.setPostUpdateMode}
-					/>
+					<React.Fragment>
+						<FilterablePostsTable
+							setCurrentPost={this.setCurrentPost}
+							authors={authors}
+							categories={categories}
+							posts={posts}
+							setPostUpdateMode={this.setPostUpdateMode}
+							setPosts={this.setPosts}
+							retrievePosts={this.retrievePosts}
+							isCompletePostsList={this.state.isCompletePostsList}
+							postsPage={this.state.postsPage}
+						/>
+					</React.Fragment>
 				) : (
 					<Spinner />
 				)}
