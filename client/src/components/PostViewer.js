@@ -217,7 +217,10 @@ class PostViewer extends React.Component {
 		state.elements['tr'].forEach((el) => {
 			formData.append('file', el.file, el.fileName);
 		});
-		axios({
+		let instance = axios.create({
+			withCredentials: true
+		});
+		instance({
 			method: 'post',
 			url: `${sharedConfig.backendPath}:${sharedConfig.backendPort}${path}`,
 			data: formData,

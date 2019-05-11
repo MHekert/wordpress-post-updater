@@ -31,7 +31,8 @@ app.use(
 		resave: false,
 		saveUninitialized: false,
 		cookie: { secure: false },
-		httpOnly: true
+		httpOnly: true,
+		unset: 'destroy'
 	})
 );
 app.use(express.static('public'));

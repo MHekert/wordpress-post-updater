@@ -3,9 +3,7 @@ const wpConfig = require('./wpConfig.json');
 var sharedConfig = require('./sharedConfig.json');
 
 var wp = new WPAPI({
-	endpoint: wpConfig.url,
-	username: wpConfig.username,
-	password: wpConfig.password
+	endpoint: wpConfig.url
 });
 
 var multer = require('multer');
@@ -60,19 +58,20 @@ module.exports = (app, passport) => {
 		}
 	});
 
-	app.post('/post/update', upload.array('file'), uploadFiles, async (req, res) => {
+	app.post('/post/update', upload.array('file'), isLoggedIn, uploadFiles, async (req, res) => {
+		let authWp = getAuthWp(wpConfig.url, req.session.passport.user.username, req.session.passport.user.password);
 		try {
 			const newContent = req.newContent;
 			const categories = JSON.parse(req.body.categories);
 			if (req.body.id != null) {
-				response = await wp.posts().id(req.body.id).update({
+				response = await authWp.posts().id(req.body.id).update({
 					title: req.body.title,
 					status: 'publish',
 					categories: categories,
 					content: newContent
 				});
 			} else {
-				response = await wp.posts().create({
+				response = await authWp.posts().create({
 					title: req.body.title,
 					status: 'publish',
 					categories: categories,
@@ -98,12 +97,18 @@ module.exports = (app, passport) => {
 				});
 		})(req, res, next);
 	});
+
+	app.post('/logout', function(req, res) {
+		req.session.destroy();
+		res.status(200).send('Logged out');
+	});
 };
 
 uploadFiles = async (req, res, next) => {
+	let authWp = getAuthWp(wpConfig.url, req.session.passport.user.username, req.session.passport.user.password);
 	const uploadedFilesLinks = req.files.map(async (el) => {
 		try {
-			return (await wp.media().file(el.path, el.originalname).create({
+			return (await authWp.media().file(el.path, el.originalname).create({
 				title: el.originalname
 			})).source_url;
 		} catch (e) {
@@ -136,3 +141,16 @@ function isNotLoggedIn(req, res, next) {
 	let user = JSON.parse(req.user);
 	res.status(200).send({ name: user.passport.user.name, id: user.passport.user.id });
 }
+
+function isLoggedIn(req, res, next) {
+	if (req.isAuthenticated()) return next();
+	return res.status(404).send('You need to login');
+}
+
+var getAuthWp = (url, username, password) => {
+	return (authWp = new WPAPI({
+		endpoint: url,
+		username: username,
+		password: password
+	}));
+};

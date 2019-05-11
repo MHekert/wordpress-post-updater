@@ -148,7 +148,7 @@ class Container extends React.Component {
 
 		return (
 			<React.Fragment>
-				{loggedUserId === undefined ? <Login logged={this.logged} /> : null}
+				<Login logged={this.logged} loggedUserId={loggedUserId} />
 				<button onClick={(e) => this.setPostUpdateMode(false)}>Empty Post</button>
 				{currentPostObj !== undefined && updateMode ? (
 					<PostViewer

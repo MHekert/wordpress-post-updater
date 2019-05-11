@@ -11,6 +11,7 @@ class Login extends React.Component {
 		};
 		this.handlePasswordChange = this.handlePasswordChange.bind(this);
 		this.handleUsernameChange = this.handleUsernameChange.bind(this);
+		this.logout = this.logout.bind(this);
 	}
 
 	componentDidMount() {
@@ -34,6 +35,20 @@ class Login extends React.Component {
 			});
 	}
 
+	logout() {
+		let instance = axios.create({
+			withCredentials: true
+		});
+		instance
+			.post(`${sharedConfig.backendPath}:${sharedConfig.backendPort}/logout`)
+			.then((response) => {
+				this.props.logged(undefined);
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	}
+
 	handleUsernameChange(val) {
 		this.setState({
 			username: val
@@ -46,15 +61,36 @@ class Login extends React.Component {
 		});
 	}
 
+	getJSX(state, props) {
+		const { username, password } = state;
+		const { loggedUserId } = props;
+		if (loggedUserId === undefined) {
+			return (
+				<React.Fragment>
+					<input
+						type="text"
+						placeholder="username"
+						value={username}
+						onChange={(e) => this.handleUsernameChange(e.target.value)}
+					/>
+					<input
+						type="password"
+						placeholder="password"
+						value={password}
+						onChange={(e) => this.handlePasswordChange(e.target.value)}
+					/>
+					<button onClick={() => this.login(username, password)}>Login</button>
+				</React.Fragment>
+			);
+		} else {
+			return <button onClick={this.logout}>Logout</button>;
+		}
+	}
+
 	render() {
 		const { username, password } = this.state;
-		return (
-			<React.Fragment>
-				<input type="text" value={username} onChange={(e) => this.handleUsernameChange(e.target.value)} />
-				<input type="password" value={password} onChange={(e) => this.handlePasswordChange(e.target.value)} />
-				<button onClick={() => this.login(username, password)}>not logged</button>
-			</React.Fragment>
-		);
+		const { loggedUserId } = this.props;
+		return this.getJSX(this.state, this.props);
 	}
 }
 
